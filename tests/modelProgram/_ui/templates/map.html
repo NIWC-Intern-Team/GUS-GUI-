@@ -39,16 +39,24 @@
             function onMapClick(e) {
                 var lat = e.latlng.lat;
                 var lng = e.latlng.lng;
-                //alert("Latitude: " + lat + ", Longitude: " + lng);
-
-                // Add a marker at the clicked location
-                L.marker([lat, lng]).addTo(map);
-
-                // Send lat, lng to the backend (Python)
+            
+                // Create a marker and add it to the map
+                var marker = L.marker([lat, lng]).addTo(map);
+            
+                // Add a tooltip to the marker and show it on hover
+                marker.bindTooltip("Latitude: " + lat.toFixed(2) + ", Longitude: " + lng.toFixed(2));
+            
+                // Event listener for removing the marker on click
+                marker.on('click', function() {
+                    map.removeLayer(marker);
+                });
+            
+                // Send lat, lng to the backend (Python) if backend is available
                 if (backend) {
                     backend.sendCoordinates(lat, lng);
                 }
             }
+            
 
             // Add click event listener to the map
             map.on('click', onMapClick);

@@ -18,7 +18,7 @@ from qdarktheme.qtpy.QtWidgets import (
     QWidget,
 )
 
-from _ui.gusSing_ui import MapWindow
+from _ui.gusSing_ui import singUI
 
 class Navigator: 
     """ Navigator Setup """
@@ -69,22 +69,23 @@ class Navigator:
             action.setCheckable(True)
             action_group_toolbar.addAction(action)
         self.actions_page[0].setChecked(True)
-        # Setup Widgets 
         
+        # Setup Widgets 
         menu_toggle = menubar.addMenu("&Toggle")
 
         activitybar.setMovable(False)
         activitybar.addActions(self.actions_page)
         activitybar.addWidget(spacer)
         activitybar.addWidget(tool_btn_settings)
+        self.stack_widget = QStackedWidget()
 
         
         # Layout 
-        # for ui in (MapWindow):
-        #     container = QWidget()
-        #     ui().setup_ui(container)
-        #     self.stack_widget.addWidget(container)
-            
+        for ui in (singUI, singUI, singUI, singUI, singUI):
+            container = QWidget()
+            ui().setup_ui(container)
+            self.stack_widget.addWidget(container)
+        self.central_window.setCentralWidget(self.stack_widget)
         main_win.setCentralWidget(self.central_window)
         main_win.addToolBar(Qt.ToolBarArea.LeftToolBarArea, activitybar)
         main_win.setMenuBar(menubar)
@@ -116,14 +117,17 @@ class MainWindow(QMainWindow):
     @Slot()
     def _change_page(self) -> None:
         action_name: str = self.sender().text()  # type: ignore
-        if "widgets" in action_name:
+        if "1" in action_name:
             index = 0
-        elif "dock" in action_name:
+        elif "2" in action_name:
             index = 1
-        elif "frame" in action_name:
+        elif "3" in action_name:
             index = 2
-        elif "mdi" in action_name:
+        elif "4" in action_name:
             index = 3
+        elif "5" in action_name:
+            index = 4 
         else:
-            index = 4
+            index = 5 # All tab 
+        print(f"current tab {index}")
         self._ui.stack_widget.setCurrentIndex(index)
