@@ -67,13 +67,6 @@ class _Group1(QGroupBox):
         group_push = QGroupBox("Push Button")
 
         push_btn_send, push_btn_delete = QPushButton("Send waypoints"), QPushButton("Delete all waypoints")
-
-
-        # Setup widgets
-        # self.setCheckable(True)
-        # for btn in (push_btn_toggled, ):
-        #     btn.setCheckable(True)
-        #     btn.setChecked(True)
             
             
         # Create the QWebEngineView widget
@@ -95,29 +88,6 @@ class _Group1(QGroupBox):
         self.page.setWebChannel(self.channel)
         # self.view.setMaximumSize(100,100)
         
-        # Layout setup
-        g_map = QGridLayout()
-
-        # Add the view to take up most of the space
-        g_map.addWidget(self.view, 1, 0, 1, 3)  # Span across columns if needed
-
-        # Add buttons at the top
-        g_map.addWidget(push_btn_send, 0, 0)  # First row, second column
-        g_map.addWidget(push_btn_delete, 0, 1)  # First row, third column
-
-        self.setLayout(g_map)
-
-
-
-
-class _Group2(QGroupBox):
-    def __init__(self) -> None:
-        super().__init__("Diagnostic Panel")
-
-        # Create Readout group boxes
-        groupR1 = QGroupBox("Readout 1")
-        groupR2 = QGroupBox("Readout 2")
-
         # Create tab widget for errors and warnings directly
         tab_widget = QTabWidget()
         tab_errors = QWidget()
@@ -139,25 +109,56 @@ class _Group2(QGroupBox):
         # Add tabs to the tab widget
         tab_widget.addTab(tab_errors, "Errors")
         tab_widget.addTab(tab_warnings, "Warnings")
+ 
+        # Layout setup
+        g_map = QGridLayout()
+
+        # Add the view to take up most of the space
+        g_map.addWidget(self.view, 1, 0, 1, 3)  
+
+        # Add buttons at the top
+        g_map.addWidget(push_btn_send, 0, 0)  # First row, second column
+        g_map.addWidget(push_btn_delete, 0, 1)  # First row, third column
+
+        # Add the error tab to the bottom 
+        g_map.addWidget(tab_widget, 2, 0, 1, 3)  
+
+        self.setLayout(g_map)
+
+
+
+
+class _Group2(QGroupBox):
+    def __init__(self) -> None:
+        super().__init__("Diagnostic Panel")
+
+        # Create Readout group boxes
+        groupR1 = QGroupBox("Readout 1")
+        groupR2 = QGroupBox("Readout 2")
+
+        groupR3 = QGroupBox("Readout 3")
+        groupR4 = QGroupBox("Readout 4")
+
+       
 
         # Layout for readout groups
         v_layout_r1 = QVBoxLayout(groupR1)
         v_layout_r2 = QVBoxLayout(groupR2)
-        label1 = QLabel("Information about Readout 1")
-        label2 = QLabel("Information about Readout 2")
-        v_layout_r1.addWidget(label1)
-        v_layout_r2.addWidget(label2)
+        v_layout_r3 = QVBoxLayout(groupR3)
+        v_layout_r4 = QVBoxLayout(groupR4)
 
         # Main grid layout setup
         g_layout_main = QGridLayout(self)
-        g_layout_main.addWidget(groupR1, 0, 0,1,2)
-        g_layout_main.addWidget(groupR2, 1, 0,1,2)
-        g_layout_main.addWidget(tab_widget, 0, 2, 2, 1)  # Span two rows for tab widget
+        g_layout_main.addWidget(groupR1, 0, 0)
+        g_layout_main.addWidget(groupR2, 1, 0)
+        g_layout_main.addWidget(groupR3, 0, 1)
+        g_layout_main.addWidget(groupR4, 1, 1)
+        # g_layout_main.addWidget(tab_widget, 0, 2, 2, 1)  # Span two rows for tab widget
 
         # Configure column stretch factors
-        g_layout_main.setColumnStretch(0, 1)
-        g_layout_main.setColumnStretch(1, 1)
-        g_layout_main.setColumnStretch(2, 2)  # Give more space to the tab widget
+        # g_layout_main.setColumnStretch(0, 1)
+        # g_layout_main.setColumnStretch(1, 1)
+        # g_layout_main.setColumnStretch(2, 2)  # Give more space to the tab widget
 
 
 class _Group3(QGroupBox):

@@ -17,8 +17,14 @@ from qdarktheme.qtpy.QtWidgets import (
     QToolButton,
     QWidget,
 )
-
+import os 
 from _ui.gusSing_ui import singUI
+from PyQt5 import QtWidgets, QtGui
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+RESOURCES_DIR = os.path.join(BASE_DIR, 'svg') # to be shifted to resources 
+ICON_PATH = os.path.join(RESOURCES_DIR, 'ship.ico')
+
 
 class Navigator: 
     """ Navigator Setup """
@@ -82,7 +88,7 @@ class Navigator:
         # statusbar.addPermanentWidget(tool_btn_enable) #
         # statusbar.addPermanentWidget(tool_btn_disable)
          
-        # read from diagnostics sheet 
+        # to be read from diagnostics sheet
         if (1):
             statusbar.showMessage("Connected") # swap between connected and disconnected
         else:
@@ -118,7 +124,8 @@ class MainWindow(QMainWindow):
         self._ui.setup_ui(self)
         self._theme = "dark"
         self._corner_shape = "rounded"
-        
+        self.setWindowIcon(QtGui.QIcon(ICON_PATH))
+        self.setWindowTitle("For the GUS!")
         # Signal
         self._ui.action_open_folder.triggered.connect(
             lambda: QFileDialog.getOpenFileName(
