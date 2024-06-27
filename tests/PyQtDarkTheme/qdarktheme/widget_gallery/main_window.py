@@ -81,7 +81,7 @@ class _WidgetGalleryUI:
         activitybar.addWidget(spacer)
         activitybar.addWidget(tool_btn_settings)
 
-        tool_btn_settings.setIcon(QIcon("icons:settings_24dp.svg"))
+        tool_btn_settings.setIcon(QIcon("icons:circle_24dp.svg"))
         tool_btn_settings.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         tool_btn_enable.setDefaultAction(self.action_enable)
         tool_btn_disable.setDefaultAction(self.action_disable)
