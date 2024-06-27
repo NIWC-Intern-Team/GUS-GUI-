@@ -17,8 +17,14 @@ from qdarktheme.qtpy.QtWidgets import (
     QToolButton,
     QWidget,
 )
-
+import os 
 from _ui.gusSing_ui import singUI
+from PyQt5 import QtWidgets, QtGui
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+RESOURCES_DIR = os.path.join(BASE_DIR, 'svg') # to be shifted to resources 
+ICON_PATH = os.path.join(RESOURCES_DIR, 'ship.ico')
+
 
 class Navigator: 
     """ Navigator Setup """
@@ -57,7 +63,7 @@ class Navigator:
         self.stack_widget = QStackedWidget()
         self.toolbar = QToolBar("Toolbar")
         activitybar = QToolBar("activitybar")
-        statusbar = QStatusBar()
+        statusbar = QStatusBar() # indicate RF Connection? 
         menubar = QMenuBar()
         tool_btn_settings, tool_btn_theme, tool_btn_enable, tool_btn_disable, tool_btn_message_box = (
             QToolButton() for _ in range(5)
@@ -71,9 +77,24 @@ class Navigator:
         self.actions_page[0].setChecked(True)
         
         # Setup Widgets 
-        menu_toggle = menubar.addMenu("&Toggle")
+        menu_toggle = menubar.addMenu("&File")
+        menu_toggle = menubar.addMenu("&View")
+        menu_toggle = menubar.addMenu("&Options")
+        menu_toggle = menubar.addMenu("&Edit")
+        menu_toggle = menubar.addMenu("&Help")
+        
+        # Indication of RF connection - important should be separated 
+        
+        # statusbar.addPermanentWidget(tool_btn_enable) #
+        # statusbar.addPermanentWidget(tool_btn_disable)
+         
+        # to be read from diagnostics sheet
+        if (1):
+            statusbar.showMessage("Connected") # swap between connected and disconnected
+        else:
+            statusbar.showMessage("Disconnected") # swap between connected and disconnected
 
-        activitybar.setMovable(False)
+        activitybar.setMovable(True)
         activitybar.addActions(self.actions_page)
         activitybar.addWidget(spacer)
         activitybar.addWidget(tool_btn_settings)
@@ -103,7 +124,9 @@ class MainWindow(QMainWindow):
         self._ui.setup_ui(self)
         self._theme = "dark"
         self._corner_shape = "rounded"
-        
+        self.setWindowTitle("For the GUS!")
+
+        self.setWindowIcon(QtGui.QIcon(ICON_PATH))
         # Signal
         self._ui.action_open_folder.triggered.connect(
             lambda: QFileDialog.getOpenFileName(
@@ -131,3 +154,13 @@ class MainWindow(QMainWindow):
             index = 5 # All tab 
         print(f"current tab {index}")
         self._ui.stack_widget.setCurrentIndex(index)
+        
+        
+        
+        
+        
+        
+        
+        
+
+        

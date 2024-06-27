@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QGr
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from PyQt5.QtWebChannel import QWebChannel
 
-
+from PyQt5 import uic
 from typing import Any
 
 from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
@@ -62,21 +62,23 @@ class _Group1(QGroupBox):
         super().__init__("hopefully a map")
         # self.setGeometry(100, 100, 800, 600)
 
-        # Widgets
-        group_push = QGroupBox()
+        # Widgets        
+        map_group = QGroupBox("Map & Features")
+        group_push = QGroupBox("Push Button")
 
-
-
-
+        push_btn_send, push_btn_delete = QPushButton("Send waypoints"), QPushButton("Delete all waypoints")
+            
+            
         # Create the QWebEngineView widget
         self.view = QWebEngineView()
         self.page = CustomWebEnginePage(self)
         self.view.setPage(self.page)
-        
+        self.view.setMinimumSize(300, 400)
+
         # Setup path to map.html
         current_dir = os.path.dirname(os.path.abspath(__file__))
         # 2nd parameter (between current_dir & map.html) can be set to subdir within parent for access to map.html
-        html_path = os.path.join(current_dir, 'templates', 'map.html') 
+        html_path = os.path.join(current_dir, 'static', 'map.html') 
         self.view.setUrl(QUrl.fromLocalFile(html_path))
         
         # Set up QWebChannel for communication
@@ -84,31 +86,153 @@ class _Group1(QGroupBox):
         self.backend = Backend()
         self.channel.registerObject('backend', self.backend)
         self.page.setWebChannel(self.channel)
+        # self.view.setMaximumSize(100,100)
         
-        
-        
-        # Layout
+        # Create tab widget for errors and warnings directly
+        tab_widget = QTabWidget()
+        tab_errors = QWidget()
+        tab_warnings = QWidget()
+
+        # Add text areas for errors and warnings
+        errors_text_edit = QTextEdit()
+        warnings_text_edit = QTextEdit()
+
+        # Layouts for tabs
+        errors_layout = QVBoxLayout()
+        errors_layout.addWidget(errors_text_edit)
+        tab_errors.setLayout(errors_layout)
+
+        warnings_layout = QVBoxLayout()
+        warnings_layout.addWidget(warnings_text_edit)
+        tab_warnings.setLayout(warnings_layout)
+
+        # Add tabs to the tab widget
+        tab_widget.addTab(tab_errors, "Errors")
+        tab_widget.addTab(tab_warnings, "Warnings")
+ 
+        # Layout setup
         g_map = QGridLayout()
-        g_map.addWidget(self.view, 0, 0)
+
+        # Add the view to take up most of the space
+        g_map.addWidget(self.view, 1, 0, 1, 3)  
+
+        # Add buttons at the top
+        g_map.addWidget(push_btn_send, 0, 0)  # First row, second column
+        g_map.addWidget(push_btn_delete, 0, 1)  # First row, third column
+
+        # Add the error tab to the bottom 
+        g_map.addWidget(tab_widget, 2, 0, 1, 3)  
+
         self.setLayout(g_map)
 
 
 
 
+class _Group2(QGroupBox):
+    def __init__(self) -> None:
+        super().__init__("Diagnostic Panel")
+
+        # Create Readout group boxes
+        groupR1 = QGroupBox("Readout 1")
+        groupR2 = QGroupBox("Readout 2")
+
+        groupR3 = QGroupBox("Readout 3")
+        groupR4 = QGroupBox("Readout 4")
+
+       
+
+        # Layout for readout groups
+        v_layout_r1 = QVBoxLayout(groupR1)
+        v_layout_r2 = QVBoxLayout(groupR2)
+        v_layout_r3 = QVBoxLayout(groupR3)
+        v_layout_r4 = QVBoxLayout(groupR4)
+
+        # Main grid layout setup
+        g_layout_main = QGridLayout(self)
+        g_layout_main.addWidget(groupR1, 0, 0)
+        g_layout_main.addWidget(groupR2, 1, 0)
+        g_layout_main.addWidget(groupR3, 0, 1)
+        g_layout_main.addWidget(groupR4, 1, 1)
+        # g_layout_main.addWidget(tab_widget, 0, 2, 2, 1)  # Span two rows for tab widget
+
+        # Configure column stretch factors
+        # g_layout_main.setColumnStretch(0, 1)
+        # g_layout_main.setColumnStretch(1, 1)
+        # g_layout_main.setColumnStretch(2, 2)  # Give more space to the tab widget
 
 
+class _Group3(QGroupBox):
+    def __init__(self) -> None:
+        super().__init__("Camera Feeds")
+        
+        # ip address handling?
+        
+        # Widgets
+        groupL = QGroupBox("Left")
+        groupR = QGroupBox("Right")
+        groupF = QGroupBox("Fire on Ice")
+        groupA = QGroupBox("Angela Merkel")
+
+        # Setup widgets
+
+
+        # Layout
+        v_layout_line_edit1 = QVBoxLayout()
+
+        groupL.setLayout(v_layout_line_edit1)
+
+        v_layout_line_edit2 = QVBoxLayout()
+
+        groupR.setLayout(v_layout_line_edit2)
+
+        v_layout_line_edit3 = QVBoxLayout()
+
+        groupF.setLayout(v_layout_line_edit3)
+
+        v_layout_line_edit4 = QVBoxLayout()
+
+        groupA.setLayout(v_layout_line_edit4)
+
+
+        g_layout_main = QGridLayout(self)
+        g_layout_main.addWidget(groupL, 0, 0)
+        g_layout_main.addWidget(groupR, 0, 1)
+        g_layout_main.addWidget(groupF, 1, 0)
+        g_layout_main.addWidget(groupA, 1, 1)
+        
+        g_layout_main.setColumnMinimumWidth(0, 100)
+        g_layout_main.setColumnMinimumWidth(1, 100)
+        
 class singUI:
     """The ui class of widgets window. nice :-D"""
 
     def setup_ui(self, win: QWidget) -> None:
         """Set up ui."""
+        """Set up ui."""
         # Widgets
         h_splitter_1 = QSplitter(Qt.Orientation.Horizontal)
-
         # Setup widgets
-        group1 = _Group1()
-        h_splitter_1.addWidget(group1)
-        # h_splitter_1.setStretchFactor(0, 1)  # Make the first widget (group1) stretch more
+        h_splitter_1.setMinimumHeight(350)  # Fix bug layout crush
 
-        v_main_layout = QVBoxLayout(win)
-        v_main_layout.addWidget(h_splitter_1)
+        # Layout
+        h_splitter_1.addWidget(_Group1())
+        right_splitter = QSplitter(Qt.Vertical)
+
+        right_splitter.addWidget(_Group2())
+        right_splitter.addWidget(_Group3()) # additional Groups for more information 
+        # h_splitter_2.addWidget(_Group4())
+
+        h_splitter_1.addWidget(right_splitter)
+
+        widget_container = QWidget()
+        
+    # Set the main layout
+        main_layout = QVBoxLayout(win)
+        main_layout.addWidget(h_splitter_1)
+        win.setLayout(main_layout)
+        h_splitter_1.setStretchFactor(0, 1)  # Group1 takes less space
+        h_splitter_1.setStretchFactor(1, 2)  # Vertical splitter takes more space
+
+        # Adjust splitter sizes dynamically
+        h_splitter_1.setSizes([200, 300])  # Adjust initial sizes as needed
+        h_splitter_1.setSizes([150, 150])  # Equal initial sizes for vertical sections
