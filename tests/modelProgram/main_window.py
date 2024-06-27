@@ -80,16 +80,18 @@ class Navigator:
 
         
         # Layout 
-        for ui in (MapWindow):
-            container = QWidget()
-            ui().setup_ui(container)
-            self.stack_widget.addWidget(container)
+        # for ui in (MapWindow):
+        #     container = QWidget()
+        #     ui().setup_ui(container)
+        #     self.stack_widget.addWidget(container)
             
         main_win.setCentralWidget(self.central_window)
         main_win.addToolBar(Qt.ToolBarArea.LeftToolBarArea, activitybar)
         main_win.setMenuBar(menubar)
         main_win.setStatusBar(statusbar)
+        
 class MainWindow(QMainWindow):
+    
     """ Main window """
     def __init__(self) -> None:
         """Initialization of the MainWindow class."""
