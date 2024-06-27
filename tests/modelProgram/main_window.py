@@ -73,7 +73,7 @@ class Navigator:
         # Setup Widgets 
         menu_toggle = menubar.addMenu("&Toggle")
 
-        activitybar.setMovable(False)
+        activitybar.setMovable(True)
         activitybar.addActions(self.actions_page)
         activitybar.addWidget(spacer)
         activitybar.addWidget(tool_btn_settings)
