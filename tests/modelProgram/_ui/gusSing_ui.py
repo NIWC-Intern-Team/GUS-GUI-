@@ -87,7 +87,7 @@ class _Group1(QGroupBox):
         # Setup path to map.html
         current_dir = os.path.dirname(os.path.abspath(__file__))
         # 2nd parameter (between current_dir & map.html) can be set to subdir within parent for access to map.html
-        html_path = os.path.join(current_dir, 'templates', 'map.html') 
+        html_path = os.path.join(current_dir, 'static', 'map.html') 
         self.view.setUrl(QUrl.fromLocalFile(html_path))
         
         # Set up QWebChannel for communication
