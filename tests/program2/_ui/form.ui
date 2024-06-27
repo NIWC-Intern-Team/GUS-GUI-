@@ -24,8 +24,8 @@
        <rect>
         <x>10</x>
         <y>30</y>
-        <width>621</width>
-        <height>371</height>
+        <width>371</width>
+        <height>211</height>
        </rect>
       </property>
       <property name="title">
@@ -36,8 +36,8 @@
         <rect>
          <x>10</x>
          <y>10</y>
-         <width>601</width>
-         <height>351</height>
+         <width>351</width>
+         <height>181</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
@@ -54,7 +54,10 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1" alignment="Qt::AlignRight">
+        <item row="0" column="0" rowspan="3">
+         <widget class="QGraphicsView" name="graphicsView"/>
+        </item>
+        <item row="1" column="1">
          <widget class="QPushButton" name="pushButton_2">
           <property name="maximumSize">
            <size>
@@ -67,54 +70,68 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="0" rowspan="3">
-         <widget class="QGraphicsView" name="graphicsView"/>
-        </item>
        </layout>
       </widget>
      </widget>
      <widget class="QGroupBox" name="groupBox_2">
       <property name="geometry">
        <rect>
-        <x>640</x>
-        <y>20</y>
-        <width>70</width>
-        <height>143</height>
+        <x>400</x>
+        <y>40</y>
+        <width>251</width>
+        <height>141</height>
        </rect>
       </property>
       <property name="title">
        <string>GroupBox</string>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QTextEdit" name="textEdit_2">
-           <property name="maximumSize">
-            <size>
-             <width>50</width>
-             <height>30</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QTextEdit" name="textEdit_3">
-           <property name="maximumSize">
-            <size>
-             <width>50</width>
-             <height>30</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>9</x>
+         <y>28</y>
+         <width>52</width>
+         <height>66</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QTextEdit" name="textEdit_2">
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>30</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="textEdit_3">
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>30</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </widget>
    </item>
   </layout>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>100</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout"/>
+  </widget>
  </widget>
  <resources/>
  <connections/>

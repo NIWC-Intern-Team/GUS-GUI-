@@ -18,9 +18,9 @@ from qdarktheme.qtpy.QtWidgets import (
     QWidget,
 )
 
-from _ui.singGUI import Ui_MainWindow
+# from _ui.singGUI import Ui_MainWindow
 
-from _ui.form1 import Ui_Form
+from _ui.form2 import Ui_Form
 class Navigator: 
     """ Navigator Setup """
     def setup_ui(self, main_win: QMainWindow) -> None: 
@@ -72,24 +72,21 @@ class Navigator:
         self.actions_page[0].setChecked(True)
         
         # Setup Widgets 
+        # Setup Widgets 
         menu_toggle = menubar.addMenu("&File")
-
         activitybar.setMovable(True)
         activitybar.addActions(self.actions_page)
         activitybar.addWidget(spacer)
         activitybar.addWidget(tool_btn_settings)
         self.stack_widget = QStackedWidget()
 
-        
-        # Layout 
-        # try:
-        for ui in (Ui_Form,):
+        # Try initializing and adding maps in tabs
+        for _ in range(5):  # assuming 5 tabs for example
             container = QWidget()
-            # ui_instance = Ui_Class()
-            ui().setup_ui(container)
-            self.stack_widget.addWidget(container)
-        # except TypeError as e:
-        #     print(f"Error: {e}")     
+            ui = Ui_Form()  # Create an instance of Ui_Form
+            ui.setupUi(container)  # Setup the UI in the container
+            self.stack_widget.addWidget(container)  # Add the container to the stack widget
+
                 
         self.central_window.setCentralWidget(self.stack_widget)
         main_win.setCentralWidget(self.central_window)

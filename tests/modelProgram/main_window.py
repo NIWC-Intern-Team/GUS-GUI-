@@ -57,7 +57,7 @@ class Navigator:
         self.stack_widget = QStackedWidget()
         self.toolbar = QToolBar("Toolbar")
         activitybar = QToolBar("activitybar")
-        statusbar = QStatusBar()
+        statusbar = QStatusBar() # indicate RF Connection? 
         menubar = QMenuBar()
         tool_btn_settings, tool_btn_theme, tool_btn_enable, tool_btn_disable, tool_btn_message_box = (
             QToolButton() for _ in range(5)
@@ -71,7 +71,22 @@ class Navigator:
         self.actions_page[0].setChecked(True)
         
         # Setup Widgets 
-        menu_toggle = menubar.addMenu("&Toggle")
+        menu_toggle = menubar.addMenu("&File")
+        menu_toggle = menubar.addMenu("&View")
+        menu_toggle = menubar.addMenu("&Options")
+        menu_toggle = menubar.addMenu("&Edit")
+        menu_toggle = menubar.addMenu("&Help")
+        
+        # Indication of RF connection - important should be separated 
+        
+        # statusbar.addPermanentWidget(tool_btn_enable) #
+        # statusbar.addPermanentWidget(tool_btn_disable)
+         
+        # read from diagnostics sheet 
+        if (1):
+            statusbar.showMessage("Connected") # swap between connected and disconnected
+        else:
+            statusbar.showMessage("Disconnected") # swap between connected and disconnected
 
         activitybar.setMovable(True)
         activitybar.addActions(self.actions_page)
@@ -131,3 +146,13 @@ class MainWindow(QMainWindow):
             index = 5 # All tab 
         print(f"current tab {index}")
         self._ui.stack_widget.setCurrentIndex(index)
+        
+        
+        
+        
+        
+        
+        
+        
+
+        

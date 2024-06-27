@@ -70,8 +70,8 @@ class CustomWebEnginePage(QtWebEngineWidgets.QWebEnginePage):
 
 class Ui_Form(object):
     def setup_ui(self, Form):
-        Form.setObjectName("Form")
-        Form.resize(1196, 636)
+        # Form.setObjectName("Form")
+        # Form.resize(1196, 636)
         self.gridLayout_2 = QtWidgets.QGridLayout(Form)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.groupBox = QtWidgets.QGroupBox(Form)
@@ -98,8 +98,8 @@ class Ui_Form(object):
         
         self.gridLayout.addWidget(self.pushButton_2, 1, 1, 1, 1, QtCore.Qt.AlignRight)
 
-        self.graphicsView = QtWidgets.QGraphicsView(self.layoutWidget)
-        self.graphicsView.setObjectName("graphicsView")
+        # self.graphicsView = QtWidgets.QGraphicsView(self.layoutWidget)
+        # self.graphicsView.setObjectName("graphicsView")
         
         self.view = QtWebEngineWidgets.QWebEngineView(Form)  # Pass the proper parent, Form in this case
         self.page = CustomWebEnginePage(self.view)  # Parent is the view, not the Ui_Form
@@ -138,14 +138,14 @@ class Ui_Form(object):
 
 
         self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
+        # QtCore.QMetaObject.connectSlotsByName(Form)
 
  # Set stretch factors to prioritize the map view expansion
         self.gridLayout.setColumnStretch(0, 10)  # Give more stretch factor to the map column
         self.gridLayout.setColumnStretch(1, 1)  # Less stretch factor to the button column
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
+        # Form.setWindowTitle(_translate("Form", "Form"))
         self.groupBox.setTitle(_translate("Form", "Hopefully a map"))
         self.pushButton.setText(_translate("Form", "Send path"))
         self.pushButton_2.setText(_translate("Form", "Delete all"))
