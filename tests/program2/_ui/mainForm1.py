@@ -6,7 +6,7 @@ class MyForm(QtWidgets.QWidget):
     def __init__(self):
         super(MyForm, self).__init__()
         self.ui = Ui_Form()
-        self.ui.setupUi(self)
+        self.ui.setupUi()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

@@ -69,7 +69,7 @@ class CustomWebEnginePage(QtWebEngineWidgets.QWebEnginePage):
         print(f"JS: {message} (line {lineNumber}, {sourceId})")
 
 class Ui_Form(object):
-    def setupUi(self, Form):
+    def setup_ui(self, Form):
         Form.setObjectName("Form")
         Form.resize(1196, 636)
         self.gridLayout_2 = QtWidgets.QGridLayout(Form)
@@ -117,9 +117,9 @@ class Ui_Form(object):
         self.gridLayout.addWidget(self.view, 0, 0, 3, 1)
         
         self.gridLayout_2.addWidget(self.groupBox, 0, 0, 1, 1)
-        
         self.groupBox_2 = QtWidgets.QGroupBox(self.groupBox)
-        self.groupBox_2.setGeometry(QtCore.QRect(640, 20, 200, 143))
+        self.groupBox_2.setGeometry(QtCore.QRect(640, 20, 70, 143))
+
         self.groupBox_2.setObjectName("groupBox_2")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.groupBox_2)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
@@ -149,4 +149,4 @@ class Ui_Form(object):
         self.groupBox.setTitle(_translate("Form", "Hopefully a map"))
         self.pushButton.setText(_translate("Form", "Send path"))
         self.pushButton_2.setText(_translate("Form", "Delete all"))
-        self.groupBox_2.setTitle(_translate("Form", "GroupBox"))
+        self.groupBox_2.setTitle(_translate("Form", "hi"))

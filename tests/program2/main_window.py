@@ -20,6 +20,7 @@ from qdarktheme.qtpy.QtWidgets import (
 
 from _ui.singGUI import Ui_MainWindow
 
+from _ui.form1 import Ui_Form
 class Navigator: 
     """ Navigator Setup """
     def setup_ui(self, main_win: QMainWindow) -> None: 
@@ -71,7 +72,7 @@ class Navigator:
         self.actions_page[0].setChecked(True)
         
         # Setup Widgets 
-        menu_toggle = menubar.addMenu("&Toggle")
+        menu_toggle = menubar.addMenu("&File")
 
         activitybar.setMovable(True)
         activitybar.addActions(self.actions_page)
@@ -81,12 +82,15 @@ class Navigator:
 
         
         # Layout 
-        for ui in (Ui_MainWindow):
+        # try:
+        for ui in (Ui_Form,):
             container = QWidget()
+            # ui_instance = Ui_Class()
             ui().setup_ui(container)
             self.stack_widget.addWidget(container)
-            
-            
+        # except TypeError as e:
+        #     print(f"Error: {e}")     
+                
         self.central_window.setCentralWidget(self.stack_widget)
         main_win.setCentralWidget(self.central_window)
         main_win.addToolBar(Qt.ToolBarArea.LeftToolBarArea, activitybar)
