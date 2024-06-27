@@ -124,8 +124,9 @@ class MainWindow(QMainWindow):
         self._ui.setup_ui(self)
         self._theme = "dark"
         self._corner_shape = "rounded"
-        self.setWindowIcon(QtGui.QIcon(ICON_PATH))
         self.setWindowTitle("For the GUS!")
+
+        self.setWindowIcon(QtGui.QIcon(ICON_PATH))
         # Signal
         self._ui.action_open_folder.triggered.connect(
             lambda: QFileDialog.getOpenFileName(
