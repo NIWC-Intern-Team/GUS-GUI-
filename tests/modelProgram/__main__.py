@@ -2,7 +2,7 @@ import sys
 
 import qdarktheme
 from qdarktheme.qtpy.QtWidgets import QApplication
-from main_window import MainWindow
+from app.main_window import MainWindow
 
 
 if __name__ == "__main__":

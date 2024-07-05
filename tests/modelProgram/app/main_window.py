@@ -17,12 +17,13 @@ from qdarktheme.qtpy.QtWidgets import (
     QToolButton,
     QWidget,
 )
-import os 
-from _ui.gusSing_ui import singUI
 from PyQt5 import QtWidgets, QtGui
+import os 
+from app._ui.gusSing_ui import singUI
+from app._ui.gusAll_ui import allUI
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-RESOURCES_DIR = os.path.join(BASE_DIR, 'svg') # to be shifted to resources 
+RESOURCES_DIR = os.path.join(BASE_DIR, 'resources') # to be shifted to resources 
 ICON_PATH = os.path.join(RESOURCES_DIR, 'ship.ico')
 
 
@@ -31,23 +32,18 @@ class Navigator:
     def setup_ui(self, main_win: QMainWindow) -> None: 
         
         # Actions     
-        self.action_open_folder = QAction(QIcon("icons:niwc_1.svg"), "Open folder dialog")
-        self.action_open_color_dialog = QAction(QIcon("icons:niwc_1.svg"), "Open color dialog")
-        self.action_open_font_dialog = QAction(
-            QIcon("icons:niwc_1.svg"), "Open font dialog"
-        )
-        self.action_enable = QAction(QIcon("icons:niwc_1.svg"), "Enable")
-        self.action_disable = QAction(QIcon("icons:niwc_1.svg"), "Disable")
-        self.actions_theme = [QAction(theme, main_win) for theme in ["auto", "dark", "light"]]
-        self.actions_page = (
-            QAction(QIcon("icons:niwc_1.svg"), "Move to 1"),
-            QAction(QIcon("icons:niwc_2.svg"), "Move to 2"),
-            QAction(QIcon("icons:niwc_3.svg"), "Move to 3"),
-            QAction(QIcon("icons:niwc_4.svg"), "Move to 4"),
-            QAction(QIcon("icons:niwc_5.svg"), "Move to 5"),
-            QAction(QIcon("icons:niwc_all.svg"), "Move to all"),
-
-        )
+        try:
+            self.actions_page = [
+                QAction(QIcon(os.path.join(RESOURCES_DIR, "niwc_1.svg")), "Move to 1"),
+                QAction(QIcon(os.path.join(RESOURCES_DIR, "niwc_2.svg")), "Move to 2"),
+                QAction(QIcon(os.path.join(RESOURCES_DIR, "niwc_3.svg")), "Move to 3"),
+                QAction(QIcon(os.path.join(RESOURCES_DIR, "niwc_4.svg")), "Move to 4"),
+                QAction(QIcon(os.path.join(RESOURCES_DIR, "niwc_5.svg")), "Move to 5"),
+                QAction(QIcon(os.path.join(RESOURCES_DIR, "niwc_all.svg")), "Move to all")
+            ]
+        except Exception as e:
+            print(f"Error: {e}")
+            
         self.actions_message_box = (
             QAction(text="Open question dialog"),
             QAction(text="Open information dialog"),
@@ -102,10 +98,11 @@ class Navigator:
 
         
         # Layout 
-        for ui in (singUI, singUI, singUI, singUI, singUI):
+        for ui in (singUI, singUI, singUI, singUI, singUI, allUI):
             container = QWidget()
             ui().setup_ui(container)
             self.stack_widget.addWidget(container)
+            
         self.central_window.setCentralWidget(self.stack_widget)
         main_win.setCentralWidget(self.central_window)
         main_win.addToolBar(Qt.ToolBarArea.LeftToolBarArea, activitybar)
@@ -118,21 +115,24 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         """Initialization of the MainWindow class."""
         super().__init__()
-        QDir.addSearchPath("icons", "./svg")
 
         self._ui = Navigator()
         self._ui.setup_ui(self)
         self._theme = "dark"
         self._corner_shape = "rounded"
         self.setWindowTitle("For the GUS!")
+        try: 
+            QDir.addSearchPath("icons", "./svg")
 
-        self.setWindowIcon(QtGui.QIcon(ICON_PATH))
-        # Signal
-        self._ui.action_open_folder.triggered.connect(
-            lambda: QFileDialog.getOpenFileName(
-                self, "Open File", options=QFileDialog.Option.DontUseNativeDialog
-            )
-        )
+            self.setWindowIcon(QtGui.QIcon(ICON_PATH))
+            # Signal
+            # self._ui.action_open_folder.triggered.connect(
+            #     lambda: QFileDialog.getOpenFileName(
+            #         self, "Open File", options=QFileDialog.Option.DontUseNativeDialog
+            #     )
+            # )
+        except Exception as e:
+            print(f"Error: {e}")
         
         for action in self._ui.actions_page:
             action.triggered.connect(self._change_page)

@@ -73,7 +73,7 @@ class _Group1(QGroupBox):
         self.view = QWebEngineView()
         self.page = CustomWebEnginePage(self)
         self.view.setPage(self.page)
-        self.view.setMinimumSize(300, 400)
+        # self.view.setMinimumSize(300, 400)
 
         # Setup path to map.html
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -87,6 +87,27 @@ class _Group1(QGroupBox):
         self.channel.registerObject('backend', self.backend)
         self.page.setWebChannel(self.channel)
         # self.view.setMaximumSize(100,100)
+ 
+        # Layout setup
+        g_map = QGridLayout()
+
+        # Add the view to take up most of the space
+        g_map.addWidget(self.view, 1, 0, 1, 3)  
+
+        # Add buttons at the top
+        g_map.addWidget(push_btn_send, 0, 0)  # First row, second column
+        g_map.addWidget(push_btn_delete, 0, 1)  # First row, third column
+
+        # Add the error tab to the bottom 
+        # g_map.addWidget(tab_widget, 2, 0, 1, 3)  
+
+        self.setLayout(g_map)
+        
+class _Group2(QGroupBox):
+    def __init__(self) -> None:
+        super().__init__("Terminal")
+        # self.setGeometry(100, 100, 800, 600)
+
         
         # Create tab widget for errors and warnings directly
         tab_widget = QTabWidget()
@@ -113,22 +134,15 @@ class _Group1(QGroupBox):
         # Layout setup
         g_map = QGridLayout()
 
-        # Add the view to take up most of the space
-        g_map.addWidget(self.view, 1, 0, 1, 3)  
 
-        # Add buttons at the top
-        g_map.addWidget(push_btn_send, 0, 0)  # First row, second column
-        g_map.addWidget(push_btn_delete, 0, 1)  # First row, third column
-
-        # Add the error tab to the bottom 
-        g_map.addWidget(tab_widget, 2, 0, 1, 3)  
+        # # Add the error tab to the bottom 
+        g_map.addWidget(tab_widget)  
 
         self.setLayout(g_map)
 
 
 
-
-class _Group2(QGroupBox):
+class _Group3(QGroupBox):
     def __init__(self) -> None:
         super().__init__("Diagnostic Panel")
 
@@ -161,7 +175,7 @@ class _Group2(QGroupBox):
         # g_layout_main.setColumnStretch(2, 2)  # Give more space to the tab widget
 
 
-class _Group3(QGroupBox):
+class _Group4(QGroupBox):
     def __init__(self) -> None:
         super().__init__("Camera Feeds")
         
@@ -208,31 +222,34 @@ class singUI:
 
     def setup_ui(self, win: QWidget) -> None:
         """Set up ui."""
-        """Set up ui."""
         # Widgets
-        h_splitter_1 = QSplitter(Qt.Orientation.Horizontal)
-        # Setup widgets
-        h_splitter_1.setMinimumHeight(350)  # Fix bug layout crush
+        h_splitter_1 = QSplitter(Qt.Horizontal, win)
+        h_splitter_1.setMinimumWidth(100)  # Ensure splitter has a minimum width
 
-        # Layout
-        h_splitter_1.addWidget(_Group1())
+        # Left vertical splitter
+        left_splitter = QSplitter(Qt.Vertical)
+        left_splitter.addWidget(_Group1())
+        left_splitter.addWidget(_Group2())
+        left_splitter.setMinimumHeight(75)
+        left_splitter.setMinimumWidth(500)  # Ensure reasonable width for usability
+
+        # Right vertical splitter
         right_splitter = QSplitter(Qt.Vertical)
+        right_splitter.addWidget(_Group3())
+        right_splitter.addWidget(_Group4())
+        right_splitter.setMinimumHeight(75)
+        right_splitter.setMinimumWidth(250)
 
-        right_splitter.addWidget(_Group2())
-        right_splitter.addWidget(_Group3()) # additional Groups for more information 
-        # h_splitter_2.addWidget(_Group4())
-
+        # Add both splitters to the horizontal splitter
+        h_splitter_1.addWidget(left_splitter)
         h_splitter_1.addWidget(right_splitter)
 
-        widget_container = QWidget()
-        
-    # Set the main layout
+        # Set even initial sizes
+        total_width = h_splitter_1.size().width()
+        h_splitter_1.setSizes([total_width//2, total_width//2])  # Divide the total width evenly
+
+        # Main layout setup
         main_layout = QVBoxLayout(win)
         main_layout.addWidget(h_splitter_1)
         win.setLayout(main_layout)
-        h_splitter_1.setStretchFactor(0, 1)  # Group1 takes less space
-        h_splitter_1.setStretchFactor(1, 2)  # Vertical splitter takes more space
-
-        # Adjust splitter sizes dynamically
-        h_splitter_1.setSizes([200, 300])  # Adjust initial sizes as needed
-        h_splitter_1.setSizes([150, 150])  # Equal initial sizes for vertical sections
+        h_splitter_1.setStretchFactor(1, 2)  
