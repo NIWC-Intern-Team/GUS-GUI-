@@ -18,14 +18,16 @@ from qdarktheme.qtpy.QtWidgets import (
     QWidget,
 )
 from PyQt5 import QtWidgets, QtGui
-import os 
+import os, sys
 from app._ui.gusSing_ui import singUI
 from app._ui.gusAll_ui import allUI
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RESOURCES_DIR = os.path.join(BASE_DIR, 'resources') # to be shifted to resources 
 ICON_PATH = os.path.join(RESOURCES_DIR, 'ship.ico')
-
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from data.csv_handler import csvHandler
 
 class Navigator: 
     """ Navigator Setup """
@@ -96,11 +98,18 @@ class Navigator:
         activitybar.addWidget(tool_btn_settings)
         self.stack_widget = QStackedWidget()
 
-        
+        try:
+            csv_handler = csvHandler()
+            # csv_handler.print_data()
+            
+        except Exception as e:
+            print(f"Error: {e}")
+            
+        tab_list = [singUI, singUI, singUI, singUI, singUI, allUI]
         # Layout 
-        for ui in (singUI, singUI, singUI, singUI, singUI, allUI):
+        for tab, ui in enumerate(tab_list):
             container = QWidget()
-            ui().setup_ui(container)
+            ui().setup_ui(container, csv_handler, tab)
             self.stack_widget.addWidget(container)
             
         self.central_window.setCentralWidget(self.stack_widget)
@@ -134,6 +143,8 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print(f"Error: {e}")
         
+
+            
         for action in self._ui.actions_page:
             action.triggered.connect(self._change_page)
             

@@ -40,7 +40,13 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QHBoxLayout,
+    QSizePolicy
 )
+
+
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
+import random 
 
 # JS access to PyQt backend 
 class Backend(QObject):
@@ -58,9 +64,12 @@ class CustomWebEnginePage(QWebEnginePage):
 
 
 class _Group1(QGroupBox):
-    def __init__(self) -> None:
+    def __init__(self, csv_handler) -> None:
         super().__init__("hopefully a map")
         # self.setGeometry(100, 100, 800, 600)
+        csv_handler.print_data()
+        # lat = csv_handler.self.dataframes
+        
 
         # Widgets        
         map_group = QGroupBox("Map & Features")
@@ -98,9 +107,6 @@ class _Group1(QGroupBox):
         g_map.addWidget(push_btn_send, 0, 0)  # First row, second column
         g_map.addWidget(push_btn_delete, 0, 1)  # First row, third column
 
-        # Add the error tab to the bottom 
-        # g_map.addWidget(tab_widget, 2, 0, 1, 3)  
-
         self.setLayout(g_map)
         
 class _Group2(QGroupBox):
@@ -108,7 +114,6 @@ class _Group2(QGroupBox):
         super().__init__("Terminal")
         # self.setGeometry(100, 100, 800, 600)
 
-        
         # Create tab widget for errors and warnings directly
         tab_widget = QTabWidget()
         tab_errors = QWidget()
@@ -134,45 +139,81 @@ class _Group2(QGroupBox):
         # Layout setup
         g_map = QGridLayout()
 
-
-        # # Add the error tab to the bottom 
+        # Add the error tab to the bottom 
         g_map.addWidget(tab_widget)  
-
         self.setLayout(g_map)
-
-
 
 class _Group3(QGroupBox):
     def __init__(self) -> None:
         super().__init__("Diagnostic Panel")
 
         # Create Readout group boxes
-        groupR1 = QGroupBox("Readout 1")
+        # groupR1 = QGroupBox("Readout 1")
         groupR2 = QGroupBox("Readout 2")
+        # groupR3 = QGroupBox("Readout 3")
+        # groupR4 = QGroupBox("Readout 4")
 
-        groupR3 = QGroupBox("Readout 3")
-        groupR4 = QGroupBox("Readout 4")
+        # Create QTableWidget for readout 1
+        self.table = QTableWidget(6, 1)  # 6 rows, 2 columns
+        self.table.setHorizontalHeaderLabels(['Value'])
+        
+        self.table.setVerticalHeaderLabels([
+            'L motor speed', 'R motor speed', 'Velocity', 'Acceleration', 
+            'Phidget 1 current', 'Phidget 2 current'
+        ])
+        # Initialize the table with empty data
+        for i in range(6):
+            # self.table.setItem(i, 0, QTableWidgetItem(self.table.verticalHeaderItem(i).text()))
+            self.table.setItem(i, 0, QTableWidgetItem('0'))
 
-       
+        # Add the table to groupR1
+        # layoutR1 = QVBoxLayout()
+        # layoutR1.addWidget(self.table)
+        # groupR1.setLayout(layoutR1)
 
-        # Layout for readout groups
-        v_layout_r1 = QVBoxLayout(groupR1)
-        v_layout_r2 = QVBoxLayout(groupR2)
-        v_layout_r3 = QVBoxLayout(groupR3)
-        v_layout_r4 = QVBoxLayout(groupR4)
+        # Add dummy content to other readout groups for demonstration
+        for group in [groupR2]:
+            layout = QVBoxLayout()
+            layout.addWidget(QLabel("to be filled with another table"))
+            group.setLayout(layout)
 
         # Main grid layout setup
         g_layout_main = QGridLayout(self)
-        g_layout_main.addWidget(groupR1, 0, 0)
-        g_layout_main.addWidget(groupR2, 1, 0)
-        g_layout_main.addWidget(groupR3, 0, 1)
-        g_layout_main.addWidget(groupR4, 1, 1)
-        # g_layout_main.addWidget(tab_widget, 0, 2, 2, 1)  # Span two rows for tab widget
+        g_layout_main.addWidget(self.table, 0, 0)
+        g_layout_main.addWidget(groupR2, 0, 1)
+        # g_layout_main.addWidget(groupR3, 1, 0)
+        # g_layout_main.addWidget(groupR4, 1, 1)
 
-        # Configure column stretch factors
-        # g_layout_main.setColumnStretch(0, 1)
-        # g_layout_main.setColumnStretch(1, 1)
-        # g_layout_main.setColumnStretch(2, 2)  # Give more space to the tab widget
+        # Set stretch factors to ensure equal sizing
+        # g_layout_main.setRowStretch(0, 4)
+        # g_layout_main.setRowStretch(1, 4)
+        g_layout_main.setColumnStretch(0, 4)
+        g_layout_main.setColumnStretch(1, 4)
+
+        # # Set size policies to ensure all group boxes are the same size
+        # for group in [self.table, groupR2]:
+        #     group.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        # Set up a timer to update values every 3 seconds
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_values)
+        self.timer.start(3000)  # 3000 milliseconds = 3 seconds
+
+    def update_values(self):
+        # Generate new data with specific formatting for floating-point numbers
+        data = [
+            str(random.randint(0, 100)),  # L motor speed
+            str(random.randint(0, 100)),  # L motor speed
+            str(random.randint(0, 100)),  # R motor speed
+            f"{random.uniform(0, 10):.2f}",   # Velocity, formatted to 2 decimal places
+            f"{random.uniform(0, 5):.2f}",    # Acceleration, formatted to 2 decimal places
+            f"{random.uniform(0, 10):.2f}",   # Phidget 1 current, formatted to 2 decimal places
+            f"{random.uniform(0, 10):.2f}"    # Phidget 2 current, formatted to 2 decimal places
+        ]
+
+        # Update the table with new data
+        for i, value in enumerate(data):
+            self.table.setItem(i-1, 1, QTableWidgetItem(value))
 
 
 class _Group4(QGroupBox):
@@ -219,16 +260,19 @@ class _Group4(QGroupBox):
         
 class singUI:
     """The ui class of widgets window. nice :-D"""
-
-    def setup_ui(self, win: QWidget) -> None:
+    # def __init__(self, csv_handler, tab)
+    def setup_ui(self, win: QWidget, csv_handler, tab) -> None:
         """Set up ui."""
         # Widgets
+        # val1.print_data()
+        self.tab = tab
+        
         h_splitter_1 = QSplitter(Qt.Horizontal, win)
         h_splitter_1.setMinimumWidth(100)  # Ensure splitter has a minimum width
 
         # Left vertical splitter
         left_splitter = QSplitter(Qt.Vertical)
-        left_splitter.addWidget(_Group1())
+        left_splitter.addWidget(_Group1(csv_handler))
         left_splitter.addWidget(_Group2())
         left_splitter.setMinimumHeight(75)
         left_splitter.setMinimumWidth(500)  # Ensure reasonable width for usability

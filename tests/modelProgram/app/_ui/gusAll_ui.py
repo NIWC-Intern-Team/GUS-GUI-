@@ -146,7 +146,7 @@ class _Group3(QGroupBox):
 class allUI:
     """The ui class of All widgets window. nice :-D"""
 
-    def setup_ui(self, win: QWidget) -> None:
+    def setup_ui(self, win: QWidget,  csv_handler, tab) -> None:
         """Set up ui."""
         self.group1 = _Group1()
 
