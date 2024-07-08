@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <title>Leaflet Map</title>
@@ -25,7 +25,9 @@
     <script>
         var map;
         var backend;
-
+        var gusMarker;
+        var gusLat;
+        var gusLng;
         // Initialize the map
         function initMap() {
             map = L.map('map').setView([32.694, -117.238], 13);
@@ -34,12 +36,19 @@
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
+                
+            var customIcon = L.icon({
+                iconUrl: 'gus_map.ico', 
+                iconSize: [38, 38], // Size of the icon
+                iconAnchor: [22, 94], // Point of the icon which will correspond to marker's location
+                popupAnchor: [-3, -76] // Point from which the popup should open relative to the iconAnchor
+            });
 
             // Function to handle click events
             function onMapClick(e) {
                 var lat = e.latlng.lat;
                 var lng = e.latlng.lng;
-            
+
                 // Create a marker and add it to the map
                 var marker = L.marker([lat, lng]).addTo(map);
             
@@ -51,15 +60,52 @@
                     map.removeLayer(marker);
                 });
             
-                // Send lat, lng to the backend (Python) if backend is available
-                if (backend) {
-                    backend.sendCoordinates(lat, lng);
-                }
+                // Send lat, lng to the backend
+               if (backend) {
+                  //backend.sendCoordinates(lat, lng);
+               }
             }
-            
 
             // Add click event listener to the map
             map.on('click', onMapClick);
+        }
+
+        function sendDataToBackend() {
+            if (backend && lastLatLng) {
+                backend.sendCoordinates(lastLatLng.lat, lastLatLng.lng);
+            }
+        }
+
+
+        // Function to parse message and extract coordinates
+        function parseCoordinates(message) {
+            var parts = message.split(', ');
+            var latPart = parts[0].split(': ')[1];
+            var lonPart = parts[1].split(': ')[1];
+            return {
+                lat: parseFloat(latPart),
+                lon: parseFloat(lonPart)
+            };
+        }
+        function placeMarker(lat, lon) {
+            var customIcon = L.icon({
+                iconUrl: 'gus_map.ico', 
+                iconSize: [38, 38], // Adjust size as needed
+                iconAnchor: [19, 19], // Point of the icon which will correspond to marker's location
+                popupAnchor: [-3, -76] // Point from which the popup should open relative to the iconAnchor
+    
+            });
+    
+            if (gusMarker) {
+                map.removeLayer(gusMarker);
+            }
+
+            gusMarker = L.marker([lat, lon], { icon: customIcon }).addTo(map);
+            gusMarker.bindTooltip("Latitude: " + lat.toFixed(2) + ", Longitude: " + lon.toFixed(2));
+
+            gusMarker.on('click', function() {
+                map.removeLayer(gusMarker);
+            });
         }
 
         // Set up QWebChannel for communication with Python
@@ -67,13 +113,20 @@
             new QWebChannel(qt.webChannelTransport, function(channel) {
                 backend = channel.objects.backend;
                 initMap();
+
+                // Handle data from Python
+                backend.dataChanged.connect(function(message) {
+                    var coords = parseCoordinates(message);
+                    placeMarker(coords.lat, coords.lon);
+                    // alert("Latitude: " + coords.lat + ", Longitude: " + coords.lon); // Display the parsed coordinates
+                    // You can now use coords.lat and coords.lon as needed within the script
+                });
             });
         }
 
         // Initialize QWebChannel when the page loads
         window.onload = setupChannel;
-
-        // 
     </script>
+    
 </body>
-</html>
+</html> 

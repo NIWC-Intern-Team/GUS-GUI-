@@ -5,9 +5,12 @@ class csvHandler():
     def __init__(self) -> None:
         print("CSV handler initialized")
         self.dataframes = {}
-        base_path = os.path.dirname(os.path.abspath(__file__))  # Get the directory where csv_handler.py is located
+        self.base_path = os.path.dirname(os.path.abspath(__file__))  # Get the directory where csv_handler.py is located
+        self.load_dataframes()
+
+    def load_dataframes(self):
         for i in range(1, 6):
-            filename = os.path.join(base_path, f'{i}_gus.csv')  # Create an absolute path to the CSV file
+            filename = os.path.join(self.base_path, f'{i}_gus.csv')  # Create an absolute path to the CSV file
             try:
                 df = pd.read_csv(filename)
                 setattr(self, f'df_{i}', df)
@@ -18,7 +21,13 @@ class csvHandler():
 
     def get_csv_data(self):
         return self.dataframes
-
+    
+    def get_lat_lon(self, idx):
+        df = self.dataframes[f'df_{idx}']
+        lat = df['lat'].values[0]
+        lon = df['lon'].values[0]
+        return lat, lon
+    
     def print_data(self):
         for name, df in self.dataframes.items():
             print(f"DataFrame {name}:")

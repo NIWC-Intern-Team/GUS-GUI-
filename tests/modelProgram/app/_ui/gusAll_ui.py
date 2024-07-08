@@ -59,7 +59,7 @@ class CustomWebEnginePage(QWebEnginePage):
 # Map Widget
 class _Group1(QGroupBox):
     def __init__(self) -> None:
-        super().__init__("hopefully a map")
+        super().__init__("Map")
         # self.setGeometry(100, 100, 800, 600)
 
         # Widgets        
