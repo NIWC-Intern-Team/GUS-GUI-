@@ -28,6 +28,17 @@ class csvHandler():
         lon = df['lon'].values[0]
         return lat, lon
     
+    def get_speed(self, idx):
+        df = self.dataframes[f'df_{idx}']
+        speed = df['speed'].values[0]
+        return speed
+    
+    def get_average_temperature(self, idx):
+        df = self.dataframes[f'df_{idx}']
+        average_temperature = df['average_temperature']
+        return average_temperature
+        
+    
     def print_data(self):
         for name, df in self.dataframes.items():
             print(f"DataFrame {name}:")

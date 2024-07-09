@@ -42,11 +42,21 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
 )
 
+from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
+import random 
+
 # JS access to PyQt backend 
 class Backend(QObject):
     @pyqtSlot(float, float)
     def sendCoordinates(self, lat, lng):
         print(f"Latitude: {lat}, Longitude: {lng}")
+    
+    def sendSpeed(self, speed):
+        print(f'Speed: {speed}')
+        
+    def sendTemperature(self, temperature):
+        print(f'Temperature: {temperature}')
 
 # Used to override JS message method to enable data transfer bewteen frontend & backend
 class CustomWebEnginePage(QWebEnginePage):
@@ -56,100 +66,179 @@ class CustomWebEnginePage(QWebEnginePage):
     def javaScriptConsoleMessage(self, level, message, lineNumber, sourceId):
         print(f"JS: {message} (line {lineNumber}, {sourceId})")
 
+
+class outerClass:
+    def __init__(self, csv_handler, tab):
+        self.tab = tab
+        self.group1 = self._Group1(csv_handler, self.tab)
+        self.group2 = self._Group2(csv_handler, self.tab)
+        self.group3 = self._Group3(csv_handler, self.tab)
+    
+    
 # Map Widget
-class _Group1(QGroupBox):
-    def __init__(self) -> None:
-        super().__init__("Map")
-        # self.setGeometry(100, 100, 800, 600)
+    class _Group1(QGroupBox):
+        def __init__(self, csv_handler, tab) -> None:
+            super().__init__("Map")
+            
+            self.tab = tab
+            self.csv_handler = csv_handler
 
-        # Widgets        
-        map_group = QGroupBox("Map & Features")
-        group_push = QGroupBox("Push Button")
+            # self.outer_instance = outer
+            # self.tab = tab
+            # self.setGeometry(100, 100, 800, 600)
+            # csv_handler.print_data()
+            # lat = csv_handler.self.dataframes
+            
 
-        push_btn_send, push_btn_delete = QPushButton("Send waypoints"), QPushButton("Delete all waypoints")
+            # Widgets        
+            map_group = QGroupBox("Map & Features")
+            group_push = QGroupBox("Push Button")
+
+            push_btn_send, push_btn_delete = QPushButton("Send waypoints"), QPushButton("Delete all waypoints")
+            
+            # test_btn
+                
+            # Create the QWebEngineView widget
+            self.view = QWebEngineView()
+            self.page = CustomWebEnginePage(self)
+            self.view.setPage(self.page)
+            # self.view.setMinimumSize(300, 400)
+
+            # Setup path to map.html
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            
+            # 2nd parameter (between current_dir & map.html) can be set to subdir within parent for access to map.html
+            html_path = os.path.join(current_dir, 'static', 'map.html') 
+            self.view.setUrl(QUrl.fromLocalFile(html_path))
+            
+            # Set up QWebChannel for communication
+            self.channel = QWebChannel()
+            self.backend = Backend()
+            self.channel.registerObject('backend', self.backend)
+            self.page.setWebChannel(self.channel)
+            # self.view.setMaximumSize(100,100)
+            push_btn_send.clicked.connect(self.send_waypoints)
+
+            # Layout setup
+            g_map = QGridLayout()
+
+            # Add the view to take up most of the space
+            g_map.addWidget(self.view, 1, 0, 1, 3)  
+
+            self.setLayout(g_map)
+            
+            self.timer = QTimer(self)
+            self.timer.timeout.connect(self.send_data_to_html)
+            self.timer.start(500)
+            
+        def send_data_to_html(self):
+            self.reload_csv_data()
+            lat, lon = self.csv_handler.get_lat_lon(self.tab + 1)
+            self.backend.sendCoordinates(lat, lon)
+
+        def reload_csv_data(self):
+            self.csv_handler.load_dataframes()
+            # print("CSV data reloaded")
+            
+        def send_waypoints(self):
+            pass
+
+    # All GUS overview
+    class _Group2(QGroupBox):
+        def __init__(self, csv_handler, tab) -> None:
+            super().__init__("All Gus Connections")
+
+            self.tab = tab
+            self.csv_handler = csv_handler
+
+            self.labels = []
+            self.tables = []
+            
+            for i in range(1,6):
+                label = QLabel(f'Gus {i}')
+                table = QTableWidget(3,1)
+                table.setVerticalHeaderLabels(['Location', 'Speed', 'Temperature'])
+                table.setHorizontalHeaderLabels(['Values'])
+                
+                self.labels.append(label)
+                self.tables.append(table)
+            
+            g_layout_main = QGridLayout(self)
+            
+            for i in range(5):
+                g_layout_main.addWidget(self.labels[i], i, 0)
+                g_layout_main.addWidget(self.tables[i], i, 1)
+            
+            for table in self.tables:
+                for i in range(3):
+                    table.setItem(i, 0, QTableWidgetItem('-1'))
+            
+            self.backend = Backend()
+            
+            self.timer = QTimer(self)
+            self.timer.timeout.connect(self.send_data_to_gui)
+            self.timer.start(500)
+            
+        def send_data_to_gui(self):
+            self.reload_csv_data()
+            lat, long = self.csv_handler.get_lat_lon(self.tab + 1)
+            self.tables[0].setItem(0,0, QTableWidgetItem(f'{lat}, {long}'))
+            
+            speed = self.csv_handler.get_speed(self.tab + 1)
+            self.tables[0].setItem(1, 0, QTableWidgetItem(f'{speed}'))
+            temperature = self.csv_handler.get_average_temperature(self.tab + 1)
+            self.tables[0].setItem(2, 0, QTableWidgetItem(f'{temperature}'))
+            self.backend.sendTemperature(temperature)
+            self.backend.sendSpeed(speed)
+            
+        
+        def reload_csv_data(self):
+            self.csv_handler.load_dataframes()
+            
+                
             
             
-        # Create the QWebEngineView widget
-        self.view = QWebEngineView()
-        self.page = CustomWebEnginePage(self)
-        self.view.setPage(self.page)
-        self.view.setMinimumSize(300, 400)
-        
+            
+            
 
-        # Setup path to map.html
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        # 2nd parameter (between current_dir & map.html) can be set to subdir within parent for access to map.html
-        html_path = os.path.join(current_dir, 'static', 'map.html') 
-        self.view.setUrl(QUrl.fromLocalFile(html_path))
-        
-        # Set up QWebChannel for communication
-        self.channel = QWebChannel()
-        self.backend = Backend()
-        self.channel.registerObject('backend', self.backend)
-        self.page.setWebChannel(self.channel)
-     
- 
-        # Layout setup
-        g_map = QGridLayout()
+    # Warning and Error Widget
+    class _Group3(QGroupBox):
+        def __init__(self, csv_handler, tab) -> None:
+            super().__init__("Terminal")
 
-        # Add the view to take up most of the space
-        g_map.addWidget(self.view, 1, 0, 1, 3)  
+            # self.view.setMaximumSize(100,100)
+            tab_widget = QTabWidget()
+            tab_errors = QWidget()
+            tab_warnings = QWidget()
 
-        # Add the error tab to the bottom 
-      #  g_map.addWidget(tab_widget, 2, 0, 1, 3)  
+            # Add text areas for errors and warnings
+            errors_text_edit = QTextEdit()
+            warnings_text_edit = QTextEdit()
 
-        self.setLayout(g_map)
+            # Layouts for tabs
+            errors_layout = QVBoxLayout()
+            errors_layout.addWidget(errors_text_edit)
+            tab_errors.setLayout(errors_layout)
 
-# All GUS overview
-class _Group2(QGroupBox):
-    def __init__(self) -> None:
-        super().__init__("All Gus Connections")
+            warnings_layout = QVBoxLayout()
+            warnings_layout.addWidget(warnings_text_edit)
+            tab_warnings.setLayout(warnings_layout)
 
-        groupR1 = QGroupBox("Gus Overview")
+            # Add tabs to the tab widget
+            tab_widget.addTab(tab_errors, "Errors")
+            tab_widget.addTab(tab_warnings, "Warnings")
 
-        v_layout_r1 = QVBoxLayout(groupR1)
-
-        g_layout_main = QGridLayout(self)
-        g_layout_main.addWidget(groupR1, 0, 0)
-
-# Warning and Error Widget
-class _Group3(QGroupBox):
-    def __init__(self) -> None:
-        super().__init__("Terminal")
-
-        # self.view.setMaximumSize(100,100)
-        tab_widget = QTabWidget()
-        tab_errors = QWidget()
-        tab_warnings = QWidget()
-
-        # Add text areas for errors and warnings
-        errors_text_edit = QTextEdit()
-        warnings_text_edit = QTextEdit()
-
-        # Layouts for tabs
-        errors_layout = QVBoxLayout()
-        errors_layout.addWidget(errors_text_edit)
-        tab_errors.setLayout(errors_layout)
-
-        warnings_layout = QVBoxLayout()
-        warnings_layout.addWidget(warnings_text_edit)
-        tab_warnings.setLayout(warnings_layout)
-
-        # Add tabs to the tab widget
-        tab_widget.addTab(tab_errors, "Errors")
-        tab_widget.addTab(tab_warnings, "Warnings")
-
-        g_error_layout = QGridLayout()
-        g_error_layout.addWidget(tab_widget, 2, 0, 1, 3)  
-        self.setLayout(g_error_layout)
+            g_error_layout = QGridLayout()
+            g_error_layout.addWidget(tab_widget, 2, 0, 1, 3)  
+            self.setLayout(g_error_layout)
 
 class allUI:
     """The ui class of All widgets window. nice :-D"""
 
     def setup_ui(self, win: QWidget,  csv_handler, tab) -> None:
         """Set up ui."""
-        self.group1 = _Group1()
-
+        outer_instance = outerClass(csv_handler, tab)
+        
         # Widgets
         h_splitter_1 = QSplitter(Qt.Orientation.Horizontal) # Creates left and right side to resize horizontally
         # Setup widgets
@@ -157,12 +246,12 @@ class allUI:
 
         # Layout
         self.left_splitter = QSplitter(Qt.Vertical) # Creates left stack of widgets to resize vertically
-        self.left_splitter.addWidget(_Group1())
-        self.left_splitter.addWidget(_Group3())
+        self.left_splitter.addWidget(outer_instance.group1)
+        self.left_splitter.addWidget(outer_instance.group3)
 
         # Adds vertical left widgets and the right widget to be able to resize horizontally
         h_splitter_1.addWidget(self.left_splitter)
-        h_splitter_1.addWidget(_Group2())
+        h_splitter_1.addWidget(outer_instance.group2)
 
         widget_container = QWidget()
         

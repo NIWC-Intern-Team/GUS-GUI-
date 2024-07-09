@@ -105,7 +105,7 @@ class Navigator:
         except Exception as e:
             print(f"Error: {e}")
             
-        tab_list = [singUI, allUI]
+        tab_list = [allUI, singUI, singUI, singUI, singUI, singUI]
         # Layout 
         for tab, ui in enumerate(tab_list):
             container = QWidget()
