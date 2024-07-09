@@ -19,8 +19,8 @@ class csvHandler():
             except Exception as e:
                 print(f"Error loading {filename}: {e}")
 
-    def get_csv_data(self):
-        return self.dataframes
+    def get_csv_data(self, idx):
+        return self.dataframes[f'df_{idx}']
     
     def get_lat_lon(self, idx):
         df = self.dataframes[f'df_{idx}']

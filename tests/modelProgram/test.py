@@ -1,25 +1,71 @@
-class OuterClass:
-    def __init__(self, outer_value):
-        self.outer_value = outer_value
-        self.inner_instance = self.InnerClass(self)
+import sys
 
-    def show_outer_value(self):
-        print(f"Outer Value: {self.outer_value}")
+from PyQt5.QtCore import QCoreApplication, QUrl
+from PyQt5.QtNetwork import QNetworkCookie
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWebEngineWidgets import (
+    QWebEnginePage,
+    QWebEngineProfile,
+    QWebEngineSettings,
+    QWebEngineView,
+)
 
-    class InnerClass:
-        def __init__(self, outer_instance):
-            self.outer_instance = outer_instance
 
-        def show_both_values(self):
-            # Accessing outer class attribute
-            print(f"Outer Value: {self.outer_instance.outer_value}")
+class OpenconnectSamlAuth(QMainWindow):
+    def __init__(self, parent=None):
+        super(OpenconnectSamlAuth, self).__init__(parent)
 
-            # Inner class can also have its own attributes
-            self.inner_value = "Inner Value"
-            print(f"Inner Value: {self.inner_value}")
+        self._cookie = None
 
-# Create an instance of the outer class
-outer_instance = OuterClass("Outer Class Value")
+        self.webview = QWebEngineView()
 
-# Use methods of the inner class to access outer class attributes
-outer_instance.inner_instance.show_both_values()
+        self.profile = QWebEngineProfile("storage", self.webview)
+        self.cookie_store = self.profile.cookieStore()
+        self.cookie_store.cookieAdded.connect(self.handle_cookie_added)
+
+        self.profile.settings().setAttribute(QWebEngineSettings.JavascriptEnabled, True)
+
+        webpage = QWebEnginePage(self.profile, self)
+        self.webview.setPage(webpage)
+        self.webview.titleChanged.connect(self.update_title)
+
+        self.setCentralWidget(self.webview)
+        self.resize(1024, 768)
+
+    @property
+    def cookie(self):
+        return self._cookie
+
+    def login(self, url):
+        self.webview.load(QUrl.fromUserInput(url))
+        self.webview.setWindowTitle("Loading...")
+
+    def update_title(self):
+        self.webview.setWindowTitle(self.webview.title())
+
+    def handle_cookie_added(self, cookie):
+        print("added {name} : {value}".format(name=cookie.name(), value=cookie.value()))
+        if cookie.name() == b"name_of_cookie":
+            self._cookie = QNetworkCookie(cookie)
+            QCoreApplication.quit()
+
+
+# main loop
+def main():
+    app = QApplication(sys.argv)
+
+    openconnect_webobj = OpenconnectSamlAuth()
+    openconnect_webobj.login("http://169.254.230.238")
+    openconnect_webobj.show()
+
+    ret = app.exec_()
+
+    cookie = openconnect_webobj.cookie
+    if cookie is not None:
+        print("results:", cookie.name(), cookie.value(), cookie.toRawForm())
+
+    sys.exit(ret)
+
+
+if __name__ == "__main__":
+    main()

@@ -36,13 +36,7 @@
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
-                
-            var customIcon = L.icon({
-                iconUrl: 'gus_map.ico', 
-                iconSize: [38, 38], // Size of the icon
-                iconAnchor: [22, 94], // Point of the icon which will correspond to marker's location
-                popupAnchor: [-3, -76] // Point from which the popup should open relative to the iconAnchor
-            });
+
 
             // Function to handle click events
             function onMapClick(e) {
@@ -53,7 +47,7 @@
                 var marker = L.marker([lat, lng]).addTo(map);
             
                 // Add a tooltip to the marker and show it on hover
-                marker.bindTooltip("Latitude: " + lat.toFixed(2) + ", Longitude: " + lng.toFixed(2));
+                marker.bindTooltip("Latitude: " + lat.toFixed(5) + ", Longitude: " + lng.toFixed(5));
             
                 // Event listener for removing the marker on click
                 marker.on('click', function() {
@@ -90,7 +84,7 @@
         function placeMarker(lat, lon) {
             var customIcon = L.icon({
                 iconUrl: 'gus_map.ico', 
-                iconSize: [38, 38], // Adjust size as needed
+                iconSize: [25, 25], // Adjust size as needed
                 iconAnchor: [19, 19], // Point of the icon which will correspond to marker's location
                 popupAnchor: [-3, -76] // Point from which the popup should open relative to the iconAnchor
     
