@@ -133,7 +133,7 @@ class outerClass:
             
         def send_data_to_html(self):
             self.reload_csv_data()
-            lat, lon = self.csv_handler.get_lat_lon(self.tab + 1)
+            lat, lon = self.csv_handler.get_lat_lon(self.tab)
             self.backend.sendCoordinates(lat, lon)
 
         def reload_csv_data(self):
@@ -151,6 +151,7 @@ class outerClass:
             self.tab = tab
             self.csv_handler = csv_handler
 
+            # Creating column and row names for tables
             self.labels = []
             self.tables = []
             
@@ -162,43 +163,48 @@ class outerClass:
                 
                 self.labels.append(label)
                 self.tables.append(table)
-            
+                
             g_layout_main = QGridLayout(self)
             
+            # Adding label and table widgets to layout
             for i in range(5):
                 g_layout_main.addWidget(self.labels[i], i, 0)
                 g_layout_main.addWidget(self.tables[i], i, 1)
             
+            # Populate table with -1
             for table in self.tables:
                 for i in range(3):
                     table.setItem(i, 0, QTableWidgetItem('-1'))
+                    
             
             self.backend = Backend()
-            
+            # Timer to update table data
             self.timer = QTimer(self)
             self.timer.timeout.connect(self.send_data_to_gui)
             self.timer.start(500)
             
+            
+            
         def send_data_to_gui(self):
-            self.reload_csv_data()
-            lat, long = self.csv_handler.get_lat_lon(self.tab + 1)
-            self.tables[0].setItem(0,0, QTableWidgetItem(f'{lat}, {long}'))
-            
-            speed = self.csv_handler.get_speed(self.tab + 1)
-            self.tables[0].setItem(1, 0, QTableWidgetItem(f'{speed}'))
-            temperature = self.csv_handler.get_average_temperature(self.tab + 1)
-            self.tables[0].setItem(2, 0, QTableWidgetItem(f'{temperature}'))
-            self.backend.sendTemperature(temperature)
-            self.backend.sendSpeed(speed)
-            
+            # Access CSV data and update table data with new data
+            for i in range(1, self.tab + 1):
+                self.reload_csv_data()
+                lat, long = self.csv_handler.get_lat_lon(i)
+                self.tables[i - 1].setItem(0,0, QTableWidgetItem(f'{lat:.3f}, {long:.3f}'))
+                    
+                speed = self.csv_handler.get_speed(i)
+                self.tables[i - 1].setItem(1, 0, QTableWidgetItem(f'{speed:.3f} m/s'))
+                    
+                temperature = self.csv_handler.get_average_temp(i)
+                self.tables[i - 1].setItem(2, 0, QTableWidgetItem(f'{temperature:.3f} °C'))
+                
+                self.tables[i - 1].resizeColumnsToContents()
+                self.backend.sendTemperature(temperature)
+                self.backend.sendSpeed(speed)
+
         
         def reload_csv_data(self):
             self.csv_handler.load_dataframes()
-            
-                
-            
-            
-            
             
 
     # Warning and Error Widget
@@ -251,6 +257,7 @@ class allUI:
 
         # Adds vertical left widgets and the right widget to be able to resize horizontally
         h_splitter_1.addWidget(self.left_splitter)
+        outer_instance.group2.setMinimumWidth(340)
         h_splitter_1.addWidget(outer_instance.group2)
 
         widget_container = QWidget()
@@ -261,6 +268,6 @@ class allUI:
         win.setLayout(main_layout)
 
         # Adjust splitter sizes dynamically
-        h_splitter_1.setStretchFactor(1, 2)  # Vertical splitter takes more space
+        #h_splitter_1.setStretchFactor(1, 2)  # Vertical splitter takes more space
 
-        h_splitter_1.setSizes([150, 150])  # Equal initial sizes for vertical sections
+        h_splitter_1.setSizes([800, 150])  # Equal initial sizes for vertical sections

@@ -33,11 +33,10 @@ class csvHandler():
         speed = df['speed'].values[0]
         return speed
     
-    def get_average_temperature(self, idx):
+    def get_average_temp(self, idx):
         df = self.dataframes[f'df_{idx}']
-        average_temperature = df['average_temperature']
-        return average_temperature
-        
+        temp = df['average_temp'].values[0]
+        return temp    
     
     def print_data(self):
         for name, df in self.dataframes.items():
