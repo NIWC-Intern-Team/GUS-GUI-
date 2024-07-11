@@ -9,7 +9,7 @@ class dummyDataCreator:
     # Headers
     def __init__(self):
         self.headers = ['lat', 'lon', 'l_motor_speed', 'r_motor_speed', 'net_velocity', 'net_accel', 'voltage', 
-                '1_temp', '2_temp', '3_temp', '1_phidg_v', '1_phidg_c', '2_phidg_v', '2_phidg_c', 'speed', 'average_temp']
+                '1_temp', '2_temp', '3_temp', '1_phidg_v', '1_phidg_c', '2_phidg_v', '2_phidg_c', 'speed', 'average_temp', 'heading', 'battery']
 
         self.angle = 0 
         
@@ -46,6 +46,10 @@ class dummyDataCreator:
                         df[x] = lat
                     elif x == 'lon':
                         df[x] = lon
+                    elif x == 'heading':
+                        df[x] = random.uniform(0,360)
+                    elif x == 'battery':
+                        df[x] = random.uniform(0,100)
                     else:
                         df[x] = random.uniform(0,100)
             

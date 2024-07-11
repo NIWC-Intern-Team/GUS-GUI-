@@ -157,8 +157,8 @@ class outerClass:
             
             for i in range(1,6):
                 label = QLabel(f'Gus {i}')
-                table = QTableWidget(3,1)
-                table.setVerticalHeaderLabels(['Location', 'Speed', 'Temperature'])
+                table = QTableWidget(5,1)
+                table.setVerticalHeaderLabels(['Battery Percentage', 'Location', 'Speed', 'Temperature', 'Heading']) # add header and battery percent
                 table.setHorizontalHeaderLabels(['Values'])
                 
                 self.labels.append(label)
@@ -186,17 +186,24 @@ class outerClass:
             
             
         def send_data_to_gui(self):
-            # Access CSV data and update table data with new data
+            # Access CSV data and update table data with new info
             for i in range(1, self.tab + 1):
                 self.reload_csv_data()
+                
+                battery = self.csv_handler.get_battery(i)
+                self.tables[i - 1].setItem(0,0, QTableWidgetItem(f'{battery:.3f}'))
+                
                 lat, long = self.csv_handler.get_lat_lon(i)
-                self.tables[i - 1].setItem(0,0, QTableWidgetItem(f'{lat:.3f}, {long:.3f}'))
+                self.tables[i - 1].setItem(1,0, QTableWidgetItem(f'{lat:.3f}, {long:.3f}'))
                     
                 speed = self.csv_handler.get_speed(i)
-                self.tables[i - 1].setItem(1, 0, QTableWidgetItem(f'{speed:.3f} m/s'))
+                self.tables[i - 1].setItem(2, 0, QTableWidgetItem(f'{speed:.3f} m/s'))
                     
                 temperature = self.csv_handler.get_average_temp(i)
-                self.tables[i - 1].setItem(2, 0, QTableWidgetItem(f'{temperature:.3f} °C'))
+                self.tables[i - 1].setItem(3, 0, QTableWidgetItem(f'{temperature:.3f} °C'))
+                
+                heading = self.csv_handler.get_heading(i)
+                self.tables[i - 1].setItem(4,0, QTableWidgetItem(f'{heading:.3f}'))
                 
                 self.tables[i - 1].resizeColumnsToContents()
                 self.backend.sendTemperature(temperature)
