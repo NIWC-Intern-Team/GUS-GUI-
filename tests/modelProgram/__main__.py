@@ -1,5 +1,4 @@
 import sys
-
 import qdarktheme
 from qdarktheme.qtpy.QtWidgets import QApplication
 from app.main_window import MainWindow

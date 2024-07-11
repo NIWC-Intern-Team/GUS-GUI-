@@ -12,6 +12,7 @@ class dummyDataCreator:
                 '1_temp', '2_temp', '3_temp', '1_phidg_v', '1_phidg_c', '2_phidg_v', '2_phidg_c', 'speed', 'average_temperature']
 
         self.angle = 0 
+        
     # creates data structure 
     def create_data(self):
             # Loop to create and initialize multiple CSV files
@@ -37,8 +38,8 @@ class dummyDataCreator:
                 filename = f'{i}_gus.csv'
                 df = pd.read_csv(filename)
                 self.angle += math.pi / 30  # Increment angle for next point (adjust for desired resolution)
-                lat = 32.71 + 0.01 * math.cos(self.angle)  
-                lon = -117.24 + 0.01 * math.sin(self.angle)
+                lat = 32.70476 + 0.001 * math.cos(self.angle)  
+                lon = -117.22940 + 0.001 * math.sin(self.angle)
 
                 for x in self.headers:
                     if x == 'lat':
@@ -59,12 +60,11 @@ class dummyDataCreator:
         
         pass
 
-# Main loop to generate and append data every 2 seconds
 if __name__ == "__main__":
     # write_header()  # Write header once
     dd = dummyDataCreator()
     dd.create_data()
+
     while True:
-        dd.update_data()
         time.sleep(0.5)
-    
+        dd.update_data()

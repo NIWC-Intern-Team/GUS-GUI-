@@ -191,6 +191,8 @@ class outerClass:
         def __init__(self, csv_handler, tab) -> None:
             super().__init__("Diagnostic Panel")
 
+            self.csv_handler = csv_handler
+            self.tab = tab
             # Create Readout group boxes
             # groupR1 = QGroupBox("Readout 1")
             groupR2 = QGroupBox("Readout 2")
@@ -241,7 +243,7 @@ class outerClass:
             # Set up a timer to update values every 3 seconds
             self.timer = QTimer(self)
             self.timer.timeout.connect(self.update_values)
-            self.timer.start(3000)  # 3000 milliseconds = 3 seconds
+            self.timer.start(5000)  # 3000 milliseconds = 3 seconds
 
         def update_values(self):
             # Generate new data with specific formatting for floating-point numbers - to be transitioned to directly updating the csv file instead
@@ -254,7 +256,7 @@ class outerClass:
                 f"{random.uniform(0, 10):.2f}",   # Phidget 1 current, formatted to 2 decimal places
                 f"{random.uniform(0, 10):.2f}"    # Phidget 2 current, formatted to 2 decimal places
             ]
-
+            
             # Update the table with new data
             for i, value in enumerate(data):
                 self.table.setItem(i-1, 1, QTableWidgetItem(value))
@@ -273,24 +275,34 @@ class outerClass:
             groupA = QGroupBox("Front View")
 
             # Setup widgets
-
+            url = "http://169.254.127.55"
 
             # Layout
             v_layout_line_edit1 = QVBoxLayout()
-
+            self.web_view = QWebEngineView()
+            v_layout_line_edit1.addWidget(self.web_view)
             groupL.setLayout(v_layout_line_edit1)
+            self.web_view.setUrl(QUrl(url))
 
             v_layout_line_edit2 = QVBoxLayout()
-
+            self.web_view2 = QWebEngineView()
+            v_layout_line_edit2.addWidget(self.web_view2)
             groupR.setLayout(v_layout_line_edit2)
+            self.web_view2.setUrl(QUrl(url))
+
 
             v_layout_line_edit3 = QVBoxLayout()
-
+            self.web_view3 = QWebEngineView()
+            v_layout_line_edit3.addWidget(self.web_view3)
             groupF.setLayout(v_layout_line_edit3)
+            self.web_view3.setUrl(QUrl(url))
 
             v_layout_line_edit4 = QVBoxLayout()
+            self.web_view4 = QWebEngineView()
+            v_layout_line_edit4.addWidget(self.web_view4)
 
             groupA.setLayout(v_layout_line_edit4)
+            self.web_view4.setUrl(QUrl(url))
 
 
             g_layout_main = QGridLayout(self)
