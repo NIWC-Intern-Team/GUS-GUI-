@@ -177,7 +177,7 @@ class outerClass:
                     table.setItem(i, 0, QTableWidgetItem('-1'))
                     
             
-            self.backend = Backend()
+            #self.backend = Backend()
             # Timer to update table data
             self.timer = QTimer(self)
             self.timer.timeout.connect(self.send_data_to_gui)
@@ -190,24 +190,26 @@ class outerClass:
             for i in range(1, self.tab + 1):
                 self.reload_csv_data()
                 
-                battery = self.csv_handler.get_battery(i)
-                self.tables[i - 1].setItem(0,0, QTableWidgetItem(f'{battery:.3f}'))
+                self.battery = self.csv_handler.get_battery(i)
+                self.tables[i - 1].setItem(0,0, QTableWidgetItem(f'{self.battery:.3f}%'))
                 
-                lat, long = self.csv_handler.get_lat_lon(i)
-                self.tables[i - 1].setItem(1,0, QTableWidgetItem(f'{lat:.3f}, {long:.3f}'))
+                self.lat, self.long = self.csv_handler.get_lat_lon(i)
+                self.tables[i - 1].setItem(1,0, QTableWidgetItem(f'{self.lat:.3f}, {self.long:.3f}'))
                     
-                speed = self.csv_handler.get_speed(i)
-                self.tables[i - 1].setItem(2, 0, QTableWidgetItem(f'{speed:.3f} m/s'))
+                self.speed = self.csv_handler.get_speed(i)
+                self.tables[i - 1].setItem(2, 0, QTableWidgetItem(f'{self.speed:.3f} m/s'))
                     
-                temperature = self.csv_handler.get_average_temp(i)
-                self.tables[i - 1].setItem(3, 0, QTableWidgetItem(f'{temperature:.3f} °C'))
+                self.temperature = self.csv_handler.get_average_temp(i)
+                self.tables[i - 1].setItem(3, 0, QTableWidgetItem(f'{self.temperature:.3f} °C'))
                 
-                heading = self.csv_handler.get_heading(i)
-                self.tables[i - 1].setItem(4,0, QTableWidgetItem(f'{heading:.3f}'))
+                self.heading = self.csv_handler.get_heading(i)
+                self.tables[i - 1].setItem(4,0, QTableWidgetItem(f'{self.heading:.3f}°'))
                 
                 self.tables[i - 1].resizeColumnsToContents()
-                self.backend.sendTemperature(temperature)
-                self.backend.sendSpeed(speed)
+
+                
+                #self.backend.sendTemperature(temperature)
+               # self.backend.sendSpeed(speed)
 
         
         def reload_csv_data(self):
@@ -219,32 +221,73 @@ class outerClass:
         def __init__(self, csv_handler, tab) -> None:
             super().__init__("Terminal")
 
+            self.csv_handler = csv_handler
+            self.tab = tab
+            self.error_counter = 0
             # self.view.setMaximumSize(100,100)
-            tab_widget = QTabWidget()
+            self.tab_widget = QTabWidget()
             tab_errors = QWidget()
             tab_warnings = QWidget()
 
             # Add text areas for errors and warnings
-            errors_text_edit = QTextEdit()
+            self.errors_text_edit = QTextEdit()
             warnings_text_edit = QTextEdit()
 
             # Layouts for tabs
             errors_layout = QVBoxLayout()
-            errors_layout.addWidget(errors_text_edit)
+            errors_layout.addWidget(self.errors_text_edit)
             tab_errors.setLayout(errors_layout)
 
             warnings_layout = QVBoxLayout()
             warnings_layout.addWidget(warnings_text_edit)
             tab_warnings.setLayout(warnings_layout)
-
+            
             # Add tabs to the tab widget
-            tab_widget.addTab(tab_errors, "Errors")
-            tab_widget.addTab(tab_warnings, "Warnings")
+            self.tab_widget.addTab(tab_errors, f'Errors({self.error_counter})')
+            self.tab_widget.addTab(tab_warnings, "Warnings")
 
             g_error_layout = QGridLayout()
-            g_error_layout.addWidget(tab_widget, 2, 0, 1, 3)  
+            g_error_layout.addWidget(self.tab_widget, 2, 0, 1, 3)  
             self.setLayout(g_error_layout)
-
+            
+            self.timer = QTimer(self)
+            self.timer.timeout.connect(self.thresholds)
+            self.timer.start(500)
+            
+        def thresholds(self):
+            # Error Thresholds
+            for i in range(1, self.tab + 1):
+                self.reload_csv_data()
+                
+                # Get data from CSV files
+                self.battery = self.csv_handler.get_battery(i)
+                self.lat, self.long = self.csv_handler.get_lat_lon(i)
+                self.speed = self.csv_handler.get_speed(i)
+                self.temperature = self.csv_handler.get_average_temp(i)
+                self.heading = self.csv_handler.get_heading(i)
+                
+                if self.battery < 20: # battery threshold
+                    self.error_counter += 1
+                    self.errors_text_edit.append(f'Gus {i}: Error - Battery low ({self.battery})')
+                    
+                if self.lat > 200 or self.long > 200: # position threshold
+                    self.error_counter += 1
+                    self.errors_text_edit.append(f'Gus {i}: Error - Position too far ({self.lat}, {self.long})')
+                    
+                if self.speed > 50: # speed threshold
+                    self.error_counter += 1
+                    self.errors_text_edit.append(f'Gus {i}: Error - Speed above 50 m/s ({self.speed})')
+                    
+                if self.temperature > 80: # temperature threshold
+                    self.error_counter += 1
+                    self.errors_text_edit.append(f'Gus {i}: Error - Temperature too high ({self.temperature})')
+                
+                self.tab_widget.setTabText(0, f'Errors({self.error_counter})') # Update Error tab title
+                        
+        def reload_csv_data(self):
+            self.csv_handler.load_dataframes()        
+            
+            
 class allUI:
     """The ui class of All widgets window. nice :-D"""
 
@@ -264,7 +307,7 @@ class allUI:
 
         # Adds vertical left widgets and the right widget to be able to resize horizontally
         h_splitter_1.addWidget(self.left_splitter)
-        outer_instance.group2.setMinimumWidth(340)
+        outer_instance.group2.setMinimumWidth(360) #adjust gus overview minimum size
         h_splitter_1.addWidget(outer_instance.group2)
 
         widget_container = QWidget()
