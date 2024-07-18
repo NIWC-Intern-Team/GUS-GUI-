@@ -28,6 +28,26 @@ class csvHandler():
         lon = df['lon'].values[0]
         return lat, lon
     
+    def get_speed(self, idx):
+        df = self.dataframes[f'df_{idx}']
+        speed = df['speed'].values[0]
+        return speed
+    
+    def get_average_temp(self, idx):
+        df = self.dataframes[f'df_{idx}']
+        temp = df['average_temp'].values[0]
+        return temp    
+    
+    def get_battery(self, idx):
+        df = self.dataframes[f'df_{idx}']
+        battery = df['battery'].values[0]
+        return battery    
+    
+    def get_heading(self, idx):
+        df = self.dataframes[f'df_{idx}']
+        heading = df['heading'].values[0]
+        return heading    
+    
     def print_data(self):
         for name, df in self.dataframes.items():
             print(f"DataFrame {name}:")
