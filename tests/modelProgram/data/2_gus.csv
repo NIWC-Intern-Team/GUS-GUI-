@@ -1,2 +1,2 @@
-lat,lon,l_motor_speed,r_motor_speed,net_velocity,net_accel,voltage,1_temp,2_temp,3_temp,1_phidg_v,1_phidg_c,2_phidg_v,2_phidg_c
-32.705503144825485,-117.22873086939364,85.41252640347346,71.40707675504126,20.615293316806227,48.455110662282465,82.79358242967237,37.13123761878661,53.84832103994136,92.44609055397535,34.10501413779008,23.60406686548616,60.22309528649169,70.98569200360913
+lat,lon,status,mode,name,battery_status,ip_address,network_status,temp_sensor_1,temp_sensor_2,temp_sensor_3,volt_5v_line_sensor,volt_killsig_line_sensor,volt_24v_line_sensor,volt_curr_24v_line_sensor,volt_curr_thr_line_sensor,lidar_sensor,video_axis_feed,video_zed_feed,teensy_status,thruster_left_status,thruster_right_status
+32.704552088309185,-117.22842185239926,Remote control,Active,Emerald (GUS-2),85%,10.6.182.2,37,93,89,63,5,Remote e-stop,6,44,97,Online,Offline,Online,Online,Running,Running

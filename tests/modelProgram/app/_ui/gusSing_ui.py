@@ -1,71 +1,39 @@
 from __future__ import annotations
 
-import sys
-import os 
-from PyQt5.QtCore import QUrl, QObject, pyqtSlot, QJsonValue
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QGroupBox, QGridLayout
+import os
+
+from PyQt5.QtCore import Qt, QUrl, QObject, pyqtSignal, pyqtSlot, QTimer
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from PyQt5.QtWebChannel import QWebChannel
-
-from PyQt5 import uic
-from typing import Any
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
-
-from PyQt5.QtCore import QAbstractTableModel, QModelIndex, Qt
-from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel, QTextOption
 from PyQt5.QtWidgets import (
-    QCheckBox,
-    QColumnView,
-    QComboBox,
-    QDateTimeEdit,
-    QDial,
     QGridLayout,
-    QLabel,
-    QLCDNumber,
-    QLineEdit,
-    QListWidget,
-    QProgressBar,
     QPushButton,
-    QRadioButton,
-    QScrollArea,
-    QSlider,
-    QSpinBox,
     QSplitter,
-    QTableView,
     QTabWidget,
     QTextEdit,
-    QToolBox,
-    QToolButton,
-    QTreeWidget,
-    QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
-    QHBoxLayout,
-    QSizePolicy
+    QSizePolicy,
+    QAbstractScrollArea,
+    QHeaderView,
+    QTableWidget, 
+    QTableWidgetItem,
+    QGroupBox
 )
 
-
-from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget
-import random 
-
-
-
-
-
-# JS access to PyQt backend 
+from typing import Any
+from data.dummy_filler import dummyDataCreator
 
 class Backend(QObject):
+    '''JS access to PyQt backend'''
     dataChanged = pyqtSignal(str)  # Define the signal
 
     @pyqtSlot(float, float)
     def sendCoordinates(self, lat, lng):
-        # print(f"XLatitude: {lat}, XLongitude: {lng}")
         self.dataChanged.emit(f"Latitude: {lat}, Longitude: {lng}")  # Emit signal with the coordinates
 
-
-# Used to override JS message method to enable data transfer bewteen frontend & backend
 class CustomWebEnginePage(QWebEnginePage):
+    '''Used to override JS message method to enable data transfer between frontend and backend'''
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -79,36 +47,21 @@ class outerClass:
         self.group2 = self._Group2(csv_handler, self.tab)
         self.group3 = self._Group3(csv_handler, self.tab)
         self.group4 = self._Group4(csv_handler, self.tab)
-        # self.group2 = self._Group2
-
 
     class _Group1(QGroupBox):
         def __init__(self, csv_handler, tab) -> None:
             super().__init__("Map")
             
             self.tab = tab
-            self.csv_handler = csv_handler
-
-            # self.outer_instance = outer
-            # self.tab = tab
-            # self.setGeometry(100, 100, 800, 600)
-            # csv_handler.print_data()
-            # lat = csv_handler.self.dataframes
-            
+            self.csv_handler = csv_handler           
 
             # Widgets        
-            map_group = QGroupBox("Map & Features")
-            group_push = QGroupBox("Push Button")
-
             push_btn_send, push_btn_delete = QPushButton("Send waypoints"), QPushButton("Delete all waypoints")
-            
-            # test_btn
                 
             # Create the QWebEngineView widget
             self.view = QWebEngineView()
             self.page = CustomWebEnginePage(self)
             self.view.setPage(self.page)
-            # self.view.setMinimumSize(300, 400)
 
             # Setup path to map.html
             current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -122,7 +75,6 @@ class outerClass:
             self.backend = Backend()
             self.channel.registerObject('backend', self.backend)
             self.page.setWebChannel(self.channel)
-            # self.view.setMaximumSize(100,100)
             push_btn_send.clicked.connect(self.send_waypoints)
 
             # Layout setup
@@ -156,7 +108,6 @@ class outerClass:
     class _Group2(QGroupBox):
         def __init__(self, csv_handler, tab) -> None:
             super().__init__("Terminal")
-            # self.setGeometry(100, 100, 800, 600)
 
             # Create tab widget for errors and warnings directly
             tab_widget = QTabWidget()
@@ -189,78 +140,59 @@ class outerClass:
             
     class _Group3(QGroupBox):
         def __init__(self, csv_handler, tab) -> None:
-            super().__init__("Diagnostic Panel")
+            super().__init__("Diagnostics")
 
             self.csv_handler = csv_handler
             self.tab = tab
-            # Create Readout group boxes
-            # groupR1 = QGroupBox("Readout 1")
-            groupR2 = QGroupBox("Readout 2")
-            # groupR3 = QGroupBox("Readout 3")
-            # groupR4 = QGroupBox("Readout 4")
+            self.angle = 0
 
-            # Create QTableWidget for readout 1
-            self.table = QTableWidget(6, 1)  # 6 rows, 2 columns
-            self.table.setHorizontalHeaderLabels(['Value'])
+            # Create QTableWidget for readouts
+            numbers_of_rows = 6
+            self.table = QTableWidget(numbers_of_rows, 1)  # 6 rows, 2 columns
+            diagnostics_table = self.table
             
-            self.table.setVerticalHeaderLabels([
-                'L motor speed', 'R motor speed', 'Velocity', 'Acceleration', 
-                'Phidget 1 current', 'Phidget 2 current'
+            diagnostics_table.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Minimum)
+            diagnostics_table.setSizeAdjustPolicy(QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
+            diagnostics_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            diagnostics_table.setHorizontalHeaderLabels([' '])
+            diagnostics_table.setVerticalHeaderLabels([
+                'Latitude', 'Longitude', 'Status', 'Mode', 'Name', 'Battery Status'
             ])
+            diagnostics_table.setAlternatingRowColors(True)
+            diagnostics_table.setMinimumHeight(205)
+
             # Initialize the table with empty data
-            for i in range(6):
-                # self.table.setItem(i, 0, QTableWidgetItem(self.table.verticalHeaderItem(i).text()))
+            for i in range(numbers_of_rows):
                 self.table.setItem(i, 0, QTableWidgetItem('0'))
-
-            # Add the table to groupR1
-            # layoutR1 = QVBoxLayout()
-            # layoutR1.addWidget(self.table)
-            # groupR1.setLayout(layoutR1)
-
-            # Add dummy content to other readout groups for demonstration
-            for group in [groupR2]:
-                layout = QVBoxLayout()
-                layout.addWidget(QLabel("Further readouts"))
-                group.setLayout(layout)
 
             # Main grid layout setup
             g_layout_main = QGridLayout(self)
-            g_layout_main.addWidget(self.table, 0, 0)
-            g_layout_main.addWidget(groupR2, 0, 1)
-            # g_layout_main.addWidget(groupR3, 1, 0)
-            # g_layout_main.addWidget(groupR4, 1, 1)
+            g_layout_main.addWidget(self.table)
 
-            # Set stretch factors to ensure equal sizing
-            # g_layout_main.setRowStretch(0, 4)
-            # g_layout_main.setRowStretch(1, 4)
-            g_layout_main.setColumnStretch(0, 4)
-            g_layout_main.setColumnStretch(1, 4)
-
-            # # Set size policies to ensure all group boxes are the same size
-            # for group in [self.table, groupR2]:
-            #     group.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
-            # Set up a timer to update values every 3 seconds
+            # BC (10 July 2024): Adding one to the tab index that I am passing into the update_values method corresponds to a GUS-V number,
+            #                    i.e., tab index + 1 = GUS-V number, else this function call will throw an error.
+            #                    Example: Tab index 2 = GUS-V 3
+            # BC (15 July 2024): The system is reading from a CSV file that will be randomly updated every five seconds to simulate live data
+            self.update_values(csv_handler, tab + 1)
             self.timer = QTimer(self)
-            self.timer.timeout.connect(self.update_values)
-            self.timer.start(5000)  # 3000 milliseconds = 3 seconds
+            self.timer.timeout.connect(lambda: self.update_values(csv_handler, tab + 1))
+            self.timer.start(5000)
 
-        def update_values(self):
-            # Generate new data with specific formatting for floating-point numbers - to be transitioned to directly updating the csv file instead
-            data = [
-                str(random.randint(0, 100)),  # L motor speed
-                str(random.randint(0, 100)),  # L motor speed
-                str(random.randint(0, 100)),  # R motor speed
-                f"{random.uniform(0, 10):.2f}",   # Velocity, formatted to 2 decimal places
-                f"{random.uniform(0, 5):.2f}",    # Acceleration, formatted to 2 decimal places
-                f"{random.uniform(0, 10):.2f}",   # Phidget 1 current, formatted to 2 decimal places
-                f"{random.uniform(0, 10):.2f}"    # Phidget 2 current, formatted to 2 decimal places
-            ]
+        def update_values(self, csv_handler, gus_number):
+            # BC (10 July 2024): Use the CSV handler component to read from CSV files and populate the diagnostic table, 
+            #                    in lieu of the dummy data generated below.
+            data = csv_handler.get_csv_data(gus_number)
             
             # Update the table with new data
-            for i, value in enumerate(data):
-                self.table.setItem(i-1, 1, QTableWidgetItem(value))
+            # BC (10 July 2024): When using CSV data, you must ensure that the value being passed into QTableWidgetItem is an string,
+            #                    else the data will not be displayed, so I am using the round() function for a more accurate, less lossy result.
+            #                    If the engineers require float-point numbers, then another implementation must be used.
+            # BC (17 July 2024): Adding additional conditional statements to process numerical data differently than textual data
+            for i, column in enumerate(data):
+                data_value = data[column][0]
+                self.table.setItem(i-1, 1, QTableWidgetItem(str(data_value)))
 
+            dummyDataCreator.update_data(self)
 
     class _Group4(QGroupBox):
         def __init__(self, csv_handler, tab) -> None:
@@ -316,13 +248,11 @@ class outerClass:
         
 class singUI:
     """The ui class of widgets window. nice :-D"""
-    # def __init__(self, csv_handler, tab)
+
     def setup_ui(self, win: QWidget, csv_handler, tab) -> None:
         """Set up ui."""
-        # Widgets
-        # val1.print_data()
-        # self.tab = tab
         
+        # Widgets
         h_splitter_1 = QSplitter(Qt.Horizontal, win)
         h_splitter_1.setMinimumWidth(100)  # Ensure splitter has a minimum width
 

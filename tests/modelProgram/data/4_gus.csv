@@ -1,2 +1,2 @@
-lat,lon,_motor_speed,r_motor_speed,net_velocity,net_accel,voltage,1_temp,2_temp,3_temp,1_phidg_v,1_phidg_c,2_phidg_v,2_phidg_c,l_motor_speed
-32.7053477852523,-117.22859098300563,87.16048358259172,15.019841530061228,64.96070227388715,78.53394492913364,88.5595350942032,3.4585470707271138,15.341427338443447,51.45082930850995,99.89618347761201,54.378614472224264,78.218656719994,9.211797710778658,28.356601849726115
+lat,lon,status,mode,name,battery_status,ip_address,network_status,temp_sensor_1,temp_sensor_2,temp_sensor_3,volt_5v_line_sensor,volt_killsig_line_sensor,volt_24v_line_sensor,volt_curr_24v_line_sensor,volt_curr_thr_line_sensor,lidar_sensor,video_axis_feed,video_zed_feed,teensy_status,thruster_left_status,thruster_right_status
+32.70435326335692,-117.22848645454235,Autonomous control,Station keep,Lime (GUS-4),43%,10.6.182.4,51,31,40,76,78,Remote e-stop,6,3,2,Online,Offline,Online,Online,Stopped,Running
