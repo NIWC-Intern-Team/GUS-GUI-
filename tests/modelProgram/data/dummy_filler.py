@@ -8,7 +8,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 HEADERS = ['lat','lon','status','mode','name','ip_address','network_status','temp_sensor_1','temp_sensor_2','temp_sensor_3',
            'volt_5v_line_sensor','volt_killsig_line_sensor','volt_24v_line_sensor','volt_curr_24v_line_sensor','volt_curr_thr_line_sensor',
-           'battery_status','lidar_sensor','video_feed','teensy_status','thruster_status']
+           'battery_status','lidar_sensor','video_feed','teensy_status','thruster_status', 'speed', 'average_temp', 'battery', 'heading']
 NUMBER_OF_CSV_FILES = 6
 
 class dummyDataCreator:
@@ -43,7 +43,7 @@ class dummyDataCreator:
                 lat_value = 32.70476 + 0.001 * math.cos(self.angle)  
                 lon_value = -117.22940 + 0.001 * math.sin(self.angle)
 
-                for x in self.headers:
+                for x in HEADERS:
                     if x == 'lat':
                         df[x] = lat_value
                     elif x == 'lon':
@@ -58,7 +58,7 @@ class dummyDataCreator:
                 
                 # BC (17 July 2024): I am using the class name in lieu of self because self refers to an external class instance 
                 #                    originating from the gusSing_ui.outerClass._Group* module
-                data_frame = dummyDataCreator.process_data(data_frame, lat_value, lon_value)
+                data_frame = dummyDataCreator.process_data(df, lat_value, lon_value)
                 data_frame.to_csv(filename, index=False)
             except Exception as e:
                 print(f"Error: {e}")
