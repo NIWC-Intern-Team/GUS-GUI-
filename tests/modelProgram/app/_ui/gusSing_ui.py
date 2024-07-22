@@ -25,11 +25,12 @@ from typing import Any
 from data.dummy_filler import dummyDataCreator
 class Backend(QObject):
     '''JS access to PyQt backend'''
-    dataChanged = pyqtSignal(str)  # Define the signal
+    datatohtml = pyqtSignal(str)  # Signal to send data to HTML
+    datafromhtml = pyqtSignal(str)  # Signal to receive data from HTML
 
     @pyqtSlot(float, float)
     def send_gus_coord_htlm(self, lat, lng):
-        self.dataChanged.emit(f"Latitude: {lat}, Longitude: {lng}")  # Emit signal with the coordinates
+        self.datatohtml.emit(f"Latitude: {lat}, Longitude: {lng}")  # Emit signal with the coordinates
     
     @pyqtSlot(str)
     def printCoordinates(self, message):
@@ -86,7 +87,7 @@ class outerClass:
             push_btn_send.clicked.connect(self.send_waypoints)
 
             # Connect the signal to the slot
-            self.backend.dataChanged.connect(self.backend.printCoordinates)
+            self.backend.datafromhtml.connect(self.backend.waypoint_Coord)
 
             # Layout setup
             g_map = QGridLayout()

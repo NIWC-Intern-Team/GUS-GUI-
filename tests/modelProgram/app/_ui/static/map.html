@@ -60,18 +60,12 @@
             
                 // Send lat, lng to the backend
                 if (backend) {
-                    backend.datafromhtml.emit("Latitude: " + lat.toFixed(5) + ", Longitude: " + lng.toFixed(5));
+                    backend.waypoint_Coord("Latitude: " + lat.toFixed(5) + ", Longitude: " + lng.toFixed(5));
                 }
             }
 
             // Add click event listener to the map
             map.on('click', onMapClick);
-        }
-
-        function sendDataToBackend() {
-            if (backend && lastLatLng) {
-                backend.sendCoordinates(lastLatLng.lat, lastLatLng.lng);
-            }
         }
 
         // Function to parse message and extract coordinates
@@ -112,7 +106,7 @@
                 initMap();
 
                 // Handle data from Python
-                backend.dataChanged.connect(function(message) {
+                backend.datatohtml.connect(function(message) {
                     var coords = parseCoordinates(message);
                     placeMarker(coords.lat, coords.lon);
                     // alert("Latitude: " + coords.lat + ", Longitude: " + coords.lon); // Display the parsed coordinates
