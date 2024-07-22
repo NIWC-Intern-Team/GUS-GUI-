@@ -1,24 +1,18 @@
 """Main module of GUS GUI."""
+import os, sys
 from qdarktheme._util import get_qdarktheme_root_path
 from qdarktheme.qtpy.QtCore import QDir, Qt, Slot
-from qdarktheme.qtpy.QtGui import QAction, QActionGroup, QFont, QIcon
+from qdarktheme.qtpy.QtGui import QAction, QActionGroup, QIcon
 from qdarktheme.qtpy.QtWidgets import (
-    QColorDialog,
-    QFileDialog,
-    QFontDialog,
-    QLabel,
     QMainWindow,
     QMenuBar,
-    QMessageBox,
-    QSizePolicy,
     QStackedWidget,
     QStatusBar,
     QToolBar,
     QToolButton,
-    QWidget,
+    QWidget
 )
-from PyQt5 import QtWidgets, QtGui
-import os, sys
+from PyQt5 import QtGui
 from app._ui.gusSing_ui import singUI
 from app._ui.gusAll_ui import allUI
 
@@ -30,7 +24,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from data.csv_handler import csvHandler
 
 class Navigator: 
-    """ Navigator Setup """
+    """Navigator Setup"""
     def setup_ui(self, main_win: QMainWindow) -> None: 
         
         # Actions     
@@ -75,18 +69,13 @@ class Navigator:
         self.actions_page[0].setChecked(True)
         
         # Setup Widgets 
-        menu_toggle = menubar.addMenu("&File")
-        menu_toggle = menubar.addMenu("&View")
-        menu_toggle = menubar.addMenu("&Options")
-        menu_toggle = menubar.addMenu("&Edit")
-        menu_toggle = menubar.addMenu("&Help")
-        
-        # Indication of RF connection - important should be separated 
-        
-        # statusbar.addPermanentWidget(tool_btn_enable) #
-        # statusbar.addPermanentWidget(tool_btn_disable)
+        menubar.addMenu("&File")
+        menubar.addMenu("&View")
+        menubar.addMenu("&Options")
+        menubar.addMenu("&Edit")
+        menubar.addMenu("&Help")
          
-        # to be read from diagnostics sheet
+        # To be read from diagnostics sheet
         if (1):
             statusbar.showMessage("Connected") # swap between connected and disconnected
         else:
@@ -100,18 +89,18 @@ class Navigator:
 
         try:
             csv_handler = csvHandler()
-            # csv_handler.print_data()
             
         except Exception as e:
             print(f"Error: {e}")
             
         tab_list = [singUI, singUI, singUI, singUI, singUI, allUI]
+        
         # Layout 
         for tab, ui in enumerate(tab_list):
             container = QWidget()
             ui().setup_ui(container, csv_handler, tab)
             self.stack_widget.addWidget(container)
-            
+        
         self.central_window.setCentralWidget(self.stack_widget)
         main_win.setCentralWidget(self.central_window)
         main_win.addToolBar(Qt.ToolBarArea.LeftToolBarArea, activitybar)
@@ -119,7 +108,6 @@ class Navigator:
         main_win.setStatusBar(statusbar)
         
 class MainWindow(QMainWindow):
-    
     """ Main window """
     def __init__(self) -> None:
         """Initialization of the MainWindow class."""
@@ -134,17 +122,10 @@ class MainWindow(QMainWindow):
             QDir.addSearchPath("icons", "./svg")
 
             self.setWindowIcon(QtGui.QIcon(ICON_PATH))
-            # Signal
-            # self._ui.action_open_folder.triggered.connect(
-            #     lambda: QFileDialog.getOpenFileName(
-            #         self, "Open File", options=QFileDialog.Option.DontUseNativeDialog
-            #     )
-            # )
+
         except Exception as e:
             print(f"Error: {e}")
-        
-
-            
+                   
         for action in self._ui.actions_page:
             action.triggered.connect(self._change_page)
             
@@ -164,14 +145,4 @@ class MainWindow(QMainWindow):
         else:
             index = 5 # All tab 
         print(f"current tab {index}")
-        self._ui.stack_widget.setCurrentIndex(index)
-        
-        
-        
-        
-        
-        
-        
-        
-
-        
+        self._ui.stack_widget.setCurrentIndex(index)      
