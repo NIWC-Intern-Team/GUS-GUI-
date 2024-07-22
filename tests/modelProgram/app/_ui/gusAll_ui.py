@@ -50,7 +50,7 @@ import random
 class Backend(QObject):
     @pyqtSlot(float, float)
     def sendCoordinates(self, lat, lng):
-        print(f"Latitude: {lat}, Longitude: {lng}")
+        print(f"Latitude Test: {lat}, Longitude: {lng}")
     
     def sendSpeed(self, speed):
         print(f'Speed: {speed}')
@@ -134,7 +134,7 @@ class outerClass:
         def send_data_to_html(self):
             self.reload_csv_data()
             lat, lon = self.csv_handler.get_lat_lon(self.tab)
-            self.backend.sendCoordinates(lat, lon)
+            # self.backend.sendCoordinates(lat, lon)
 
         def reload_csv_data(self):
             self.csv_handler.load_dataframes()

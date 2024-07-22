@@ -1,15 +1,15 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <title>Leaflet Map</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <!-- QWebChannel JS -->
+    <!-- Local Leaflet CSS -->
+    <link rel="stylesheet" href="leaflet.css" />
+    <!-- Local Leaflet JS -->
+    <script src="leaflet.js"></script>
+    <!-- Local QWebChannel JS -->
     <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
 
     <style>
@@ -28,15 +28,20 @@
         var gusMarker;
         var gusLat;
         var gusLng;
+        var custom_waypoint = L.icon({
+            iconUrl: 'waypoint.png', 
+            iconSize: [25, 25], // Adjust size as needed
+            iconAnchor: [19, 19], // Point of the icon which will correspond to marker's location
+            popupAnchor: [-3, -76] // Point from which the popup should open relative to the iconAnchor
+        });
         // Initialize the map
         function initMap() {
             map = L.map('map').setView([32.694, -117.238], 13);
 
             // Add OpenStreetMap tiles
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            L.tileLayer('tiles/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
-
 
             // Function to handle click events
             function onMapClick(e) {
@@ -44,8 +49,7 @@
                 var lng = e.latlng.lng;
 
                 // Create a marker and add it to the map
-                var marker = L.marker([lat, lng]).addTo(map);
-            
+                var marker = L.marker([lat, lng], { icon: custom_waypoint }).addTo(map);            
                 // Add a tooltip to the marker and show it on hover
                 marker.bindTooltip("Latitude: " + lat.toFixed(5) + ", Longitude: " + lng.toFixed(5));
             
@@ -55,9 +59,9 @@
                 });
             
                 // Send lat, lng to the backend
-               if (backend) {
-                  //backend.sendCoordinates(lat, lng);
-               }
+                if (backend) {
+                    backend.datafromhtml.emit("Latitude: " + lat.toFixed(5) + ", Longitude: " + lng.toFixed(5));
+                }
             }
 
             // Add click event listener to the map
@@ -70,7 +74,6 @@
             }
         }
 
-
         // Function to parse message and extract coordinates
         function parseCoordinates(message) {
             var parts = message.split(', ');
@@ -81,13 +84,13 @@
                 lon: parseFloat(lonPart)
             };
         }
+
         function placeMarker(lat, lon) {
             var customIcon = L.icon({
                 iconUrl: 'gus_map.ico', 
                 iconSize: [25, 25], // Adjust size as needed
                 iconAnchor: [19, 19], // Point of the icon which will correspond to marker's location
                 popupAnchor: [-3, -76] // Point from which the popup should open relative to the iconAnchor
-    
             });
     
             if (gusMarker) {
@@ -121,6 +124,5 @@
         // Initialize QWebChannel when the page loads
         window.onload = setupChannel;
     </script>
-    
 </body>
-</html> 
+</html>

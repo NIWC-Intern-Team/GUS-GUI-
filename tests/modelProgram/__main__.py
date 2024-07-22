@@ -11,3 +11,4 @@ if __name__ == "__main__":
     win = MainWindow()
     win.show()
     app.exec()
+    
