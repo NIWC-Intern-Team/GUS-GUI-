@@ -14,8 +14,6 @@ NUMBER_OF_CSV_FILES = 6
 class dummyDataCreator:
     """Generates random data for CSV files."""
     def __init__(self):
-        self.headers = ['lat', 'lon', 'l_motor_speed', 'r_motor_speed', 'net_velocity', 'net_accel', 'voltage', 
-                '1_temp', '2_temp', '3_temp', '1_phidg_v', '1_phidg_c', '2_phidg_v', '2_phidg_c', 'speed', 'average_temp', 'heading', 'battery']
 
         self.angle = 0 
         
