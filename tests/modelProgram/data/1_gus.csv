@@ -1,2 +1,2 @@
 lat,lon,status,mode,name,battery_status,ip_address,network_status,temp_sensor_1,temp_sensor_2,temp_sensor_3,volt_5v_line_sensor,volt_killsig_line_sensor,volt_24v_line_sensor,volt_curr_24v_line_sensor,volt_curr_thr_line_sensor,lidar_sensor,video_axis_feed,video_zed_feed,teensy_status,thruster_left_status,thruster_right_status
-32.70465547153673,-117.22840547810463,Remote control,Station keep,Jade (GUS-1),40%,10.6.182.1,22,89,95,79,73,Remote e-stop,17,4,73,Online,Online,Online,Offline,Running,Stopped
+32.70445098300563,-117.2284489434837,Autonomous control,Station keep,Clover (GUS-3),87%,10.6.182.3,66,34,58,38,36,Physical e-stop,98,20,70,Offline,Online,Online,Online,Stopped,Stopped

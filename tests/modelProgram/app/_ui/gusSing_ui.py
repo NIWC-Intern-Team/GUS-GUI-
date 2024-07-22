@@ -207,7 +207,7 @@ class outerClass:
             groupA = QGroupBox("Front View")
 
             # Setup widgets
-            url = "http://192.168.50.0:8081/video_feed"
+            url = "http://169.254.127.55"
 
             # Layout
             v_layout_line_edit1 = QVBoxLayout()
