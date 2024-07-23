@@ -9,8 +9,6 @@ class SettingsWindow(QWidget):
         super(SettingsWindow, self).__init__(parent)
         self.file_path = 'data/ip_address.csv'
         self.ip_addresses, self.sensors = self.load_ip_addresses_and_sensors_from_csv(self.file_path)
-        self.tables = []
-
         self.initUI()
 
     def load_ip_addresses_and_sensors_from_csv(self, file_path):
@@ -20,19 +18,9 @@ class SettingsWindow(QWidget):
         for vehicle in df['Vehicle'].unique():
             vehicle_df = df[df['Vehicle'] == vehicle]  # Filter the DataFrame for each vehicle
             ip_dict[vehicle] = vehicle_df['IP Address'].tolist()  # Extract IP addresses as a list
-            sensor_dict[vehicle] = vehicle_df['Sensor'].tolist()  
+            sensor_dict[vehicle] = vehicle_df['Sensor'].tolist()  # Extract sensor names as a list
         return ip_dict, sensor_dict
-    def save_changes(self):
-        df = pd.read_csv(self.file_path)
-        
-        for vehicle, sensor, line_edit in self.line_edits:
-            new_ip = line_edit.text()
-            df.loc[(df['Vehicle'] == vehicle) & (df['Sensor'] == sensor), 'IP Address'] = new_ip
-        
-        df.to_csv(self.file_path, index=False)
-        print(df)
-        print("Changes saved to", 'ip_address.csv')
-        
+
     def initUI(self):
         main_layout = QHBoxLayout(self)
 
@@ -42,7 +30,7 @@ class SettingsWindow(QWidget):
         for vehicle in self.ip_addresses.keys():
             self.section_list.addItem(vehicle)
         self.section_list.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.section_list.setMaximumWidth(150)  
+        self.section_list.setMaximumWidth(150)  # Adjust the width as needed
 
         # Create the QStackedWidget for the settings panels
         self.stacked_widget = QStackedWidget()
@@ -65,61 +53,49 @@ class SettingsWindow(QWidget):
 
     def createSettingsPanel(self, text, vehicle=None, ip_addresses=None, sensors=None):
         numbers_of_rows = len(sensors) if sensors else 6
-        table = QTableWidget(numbers_of_rows, 3)  # 6 rows, 2 columns
+        self.table = QTableWidget(numbers_of_rows, 2)  # 6 rows, 2 columns
                 
-        table.setHorizontalHeaderLabels(['IP Address', "Ping", "Result"])
-        table.setAlternatingRowColors(True)
-        table.setMinimumHeight(205)
+        self.table.setHorizontalHeaderLabels(['IP Address', "Ping"])
+        self.table.setAlternatingRowColors(True)
+        self.table.setMinimumHeight(205)
         
         if sensors is None or ip_addresses is None:
             pass
         else:
-            table.setVerticalHeaderLabels(sensors)
+            self.table.setVerticalHeaderLabels(sensors)
             for i in range(numbers_of_rows):
-                table.setItem(i, 0, QTableWidgetItem(f'{ip_addresses[i]}'))
+                self.table.setItem(i, 0, QTableWidgetItem(f'{ip_addresses[i]}'))
                 push_btn_ping = QPushButton(f"Ping")
-                push_btn_ping.clicked.connect(lambda _, ip=ip_addresses[i], tbl=table, row=i: self.ping(ip, tbl, row))
-                table.setCellWidget(i, 1, push_btn_ping)
-                table.setItem(i, 2, QTableWidgetItem("N/A"))
-        self.tables.append(table)
+                push_btn_ping.clicked.connect(lambda _, ip=ip_addresses[i]: self.ping(ip))
+                self.table.setCellWidget(i, 1, push_btn_ping)
 
-        return table
+        return self.table
 
+    def save_changes(self):
+        df = pd.read_csv(self.file_path)
         
-    def ping(self, host, table, row):
-        print(f"Detected system: {sys.platform} - testing {host}")
-        if sys.platform == "win32":
-            param = '-n' if platform.system().lower() == 'windows' else '-c'
+        for vehicle, sensor, line_edit in self.line_edits:
+            new_ip = line_edit.text()
+            df.loc[(df['Vehicle'] == vehicle) & (df['Sensor'] == sensor), 'IP Address'] = new_ip
+        
+        df.to_csv(self.file_path, index=False)
+        print(df)
+        print("Changes saved to", 'ip_address.csv')
+        
+    def ping(self, host):
+        print(f"Pinging {host}...")
+        param = '-n' if platform.system().lower() == 'windows' else '-c'
 
-            try:
-                # Run the ping command
-                result = subprocess.run(['ping', param, '4', host], capture_output=True, text=True, check=True)
-                print(result.stdout)
-                print("Ping success!")
-                print(row)
-                table.setItem(row, 2, QTableWidgetItem("Pass!"))
-                return 1
-            except subprocess.CalledProcessError as e:
-                table.setItem(row, 2, QTableWidgetItem("Fail!"))
-
-                print(f"Ping failed: {e}")
-                return e.returncode
-            except PermissionError as e:
-                print(f"Access denied. Try running the script with administrative privileges. {e}")
-                return -1
-        elif "linux" in sys.platform:
-            print("Linux ping function not tested yet")
-                    # Run the ping command
-            result = subprocess.run(['ping', '-c', '4', host], capture_output=True, text=True)
-
-            # Print the output of the ping command
+        try:
+            result = subprocess.run(['ping', param, '4', host], capture_output=True, text=True)
             print(result.stdout)
-
-            # Return the return code (0 means success)
-            return result.returncode
-        else:
-            print("Unknown system.platform: %s  Installation failed, see setup.py." % sys.platform)
-            sys.exit(1)
+            return 0
+        except subprocess.CalledProcessError as e:
+            print(f"Ping failed: {e}")
+            return e.returncode
+        except PermissionError as e:
+            print(f"Access denied. Try running the script with administrative privileges. {e}")
+            return -1
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

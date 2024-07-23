@@ -34,7 +34,7 @@ def ping(host):
         sys.exit(1)
 
 # Example usage
-ping_result = ping('192.168.54.172')
+ping_result = ping('169.254.127.55')
 if ping_result == 0:
     print("Ping was successful")
 else:

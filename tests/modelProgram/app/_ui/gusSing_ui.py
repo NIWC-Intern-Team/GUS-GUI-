@@ -231,7 +231,7 @@ class outerClass:
             finally: 
                 pass
             # csv_handler.get_veh_ip_sensor(tab)
-            print(iplist)
+            # print(iplist)
             url = "192.168.54.172:8081/video_feed"
             
             # iplist = ["https://000.000.00.000", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed"]
