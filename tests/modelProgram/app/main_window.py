@@ -1,27 +1,15 @@
 """Main module of GUS GUI."""
+import os, sys
+import qdarktheme
+
 from qdarktheme._util import get_qdarktheme_root_path
 from qdarktheme.qtpy.QtCore import QDir, Qt, Slot
-from qdarktheme.qtpy.QtGui import QAction, QActionGroup, QFont, QIcon
-from qdarktheme.qtpy.QtWidgets import (
-    QColorDialog,
-    QFileDialog,
-    QFontDialog,
-    QLabel,
-    QMainWindow,
-    QMenuBar,
-    QMessageBox,
-    QSizePolicy,
-    QStackedWidget,
-    QStatusBar,
-    QToolBar,
-    QToolButton,
-    QWidget,
-)
-from PyQt5 import QtWidgets, QtGui
-import os, sys
+from qdarktheme.qtpy.QtGui import QAction, QActionGroup, QIcon, QFont
+from qdarktheme.qtpy.QtWidgets import *
+from PyQt5 import QtGui
 from app._ui.gusSing_ui import singUI
 from app._ui.gusAll_ui import allUI
-
+from app._ui.settings_window import SettingsWindow
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RESOURCES_DIR = os.path.join(BASE_DIR, 'resources') # to be shifted to resources 
@@ -30,7 +18,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from data.csv_handler import csvHandler
 
 class Navigator: 
-    """ Navigator Setup """
+    """Navigator Setup"""
     def setup_ui(self, main_win: QMainWindow) -> None: 
         
         # Actions     
@@ -45,14 +33,16 @@ class Navigator:
             ]
         except Exception as e:
             print(f"Error: {e}")
-            
-        self.actions_message_box = (
-            QAction(text="Open question dialog"),
-            QAction(text="Open information dialog"),
-            QAction(text="Open warning dialog"),
-            QAction(text="Open critical dialog"),
-        )
-        self.actions_corner_radius = (QAction(text="rounded"), QAction(text="sharp"))
+        self.action_open_folder = QAction(QIcon(os.path.join(RESOURCES_DIR,"folder_open_24dp.svg")), "Open folder dialog")
+        self.action_open_color_dialog = QAction(QIcon(os.path.join(RESOURCES_DIR,"palette_24dp.svg")), "Open color dialog")
+        self.action_open_font_dialog = QAction(
+            QIcon(os.path.join(RESOURCES_DIR,"font_download_24dp.svg")), "Open font dialog"
+        )  
+        self.action_open_ip_dialog = QAction(
+            QIcon(os.path.join(RESOURCES_DIR,"ipv2.png")), "Open IP dialog"
+        )  
+        
+        self.actions_theme = [QAction(theme, main_win) for theme in ["dark", "light"]]
 
         action_group_toolbar = QActionGroup(main_win)
 
@@ -75,18 +65,18 @@ class Navigator:
         self.actions_page[0].setChecked(True)
         
         # Setup Widgets 
-        menu_toggle = menubar.addMenu("&File")
-        menu_toggle = menubar.addMenu("&View")
-        menu_toggle = menubar.addMenu("&Options")
-        menu_toggle = menubar.addMenu("&Edit")
-        menu_toggle = menubar.addMenu("&Help")
-        
-        # Indication of RF connection - important should be separated 
-        
-        # statusbar.addPermanentWidget(tool_btn_enable) #
-        # statusbar.addPermanentWidget(tool_btn_disable)
+        menubar.addMenu("&File")
+        menu_view = menubar.addMenu("&View")
+        menu_view.addActions(self.actions_theme)
+
+        menu_options = menubar.addMenu("&Options")
+        menubar.addMenu("&Edit")
+        menubar.addMenu("&Help")
          
-        # to be read from diagnostics sheet
+        menu_options.addActions(
+            (self.action_open_folder, self.action_open_color_dialog, self.action_open_font_dialog, self.action_open_ip_dialog)
+        )
+        # To be read from diagnostics sheet
         if (1):
             statusbar.showMessage("Connected") # swap between connected and disconnected
         else:
@@ -100,18 +90,18 @@ class Navigator:
 
         try:
             csv_handler = csvHandler()
-            # csv_handler.print_data()
             
         except Exception as e:
             print(f"Error: {e}")
             
         tab_list = [singUI, singUI, singUI, singUI, singUI, allUI]
+        
         # Layout 
         for tab, ui in enumerate(tab_list):
             container = QWidget()
             ui().setup_ui(container, csv_handler, tab)
             self.stack_widget.addWidget(container)
-            
+        
         self.central_window.setCentralWidget(self.stack_widget)
         main_win.setCentralWidget(self.central_window)
         main_win.addToolBar(Qt.ToolBarArea.LeftToolBarArea, activitybar)
@@ -119,11 +109,13 @@ class Navigator:
         main_win.setStatusBar(statusbar)
         
 class MainWindow(QMainWindow):
-    
     """ Main window """
     def __init__(self) -> None:
         """Initialization of the MainWindow class."""
         super().__init__()
+        csv_handler = csvHandler()
+        self.settings_window = SettingsWindow()
+
 
         self._ui = Navigator()
         self._ui.setup_ui(self)
@@ -134,20 +126,38 @@ class MainWindow(QMainWindow):
             QDir.addSearchPath("icons", "./svg")
 
             self.setWindowIcon(QtGui.QIcon(ICON_PATH))
-            # Signal
-            # self._ui.action_open_folder.triggered.connect(
-            #     lambda: QFileDialog.getOpenFileName(
-            #         self, "Open File", options=QFileDialog.Option.DontUseNativeDialog
-            #     )
-            # )
+
         except Exception as e:
             print(f"Error: {e}")
-        
-
-            
+                   
         for action in self._ui.actions_page:
             action.triggered.connect(self._change_page)
             
+        # Signal
+        self._ui.action_open_folder.triggered.connect(
+            lambda: QFileDialog.getOpenFileName(
+                self, "Open File", options=QFileDialog.Option.DontUseNativeDialog
+            )
+        )
+        self._ui.action_open_color_dialog.triggered.connect(
+            lambda: QColorDialog.getColor(
+                parent=self, options=QColorDialog.ColorDialogOption.DontUseNativeDialog
+            )
+        )
+        self._ui.action_open_font_dialog.triggered.connect(
+            lambda: QFontDialog.getFont(
+                QFont(), parent=self, options=QFontDialog.FontDialogOption.DontUseNativeDialog
+            )
+        )  
+        self._ui.action_open_ip_dialog.triggered.connect(
+            self.openSettings
+        )  
+        for action in self._ui.actions_theme:
+            action.triggered.connect(self._change_theme)
+           
+    def openSettings(self):
+        self.settings_window.show() 
+        
     @Slot()
     def _change_page(self) -> None:
         action_name: str = self.sender().text()  # type: ignore
@@ -164,14 +174,14 @@ class MainWindow(QMainWindow):
         else:
             index = 5 # All tab 
         print(f"current tab {index}")
-        self._ui.stack_widget.setCurrentIndex(index)
+        self._ui.stack_widget.setCurrentIndex(index)      
+    @Slot()
+    def _change_theme(self) -> None:
+        self._theme = self.sender().text()  # type: ignore
+        qdarktheme.setup_theme(self._theme, self._corner_shape)
         
         
-        
-        
-        
-        
-        
-        
-
+    @Slot() 
+    def _secondary_options(self) -> None:
+        print("Secondary screen selected")
         
