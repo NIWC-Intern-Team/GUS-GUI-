@@ -254,6 +254,12 @@ class outerClass:
             self.timer.timeout.connect(self.thresholds)
             self.timer.start(500)
             
+            self.flags = [[False, False, False, False], # battery, location, speed, temperature
+                [False, False, False, False], 
+                [False, False, False, False],
+                [False, False, False, False],
+                [False, False, False, False],] 
+            
         # Checks for error thresholds
         def thresholds(self):
             from data.error_warning import Error
