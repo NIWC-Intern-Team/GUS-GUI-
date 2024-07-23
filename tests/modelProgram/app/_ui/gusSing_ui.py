@@ -23,15 +23,23 @@ from PyQt5.QtWidgets import (
 
 from typing import Any
 from data.dummy_filler import dummyDataCreator
-
 class Backend(QObject):
     '''JS access to PyQt backend'''
-    dataChanged = pyqtSignal(str)  # Define the signal
+    datatohtml = pyqtSignal(str)  # Signal to send data to HTML
+    datafromhtml = pyqtSignal(str)  # Signal to receive data from HTML
 
     @pyqtSlot(float, float)
-    def sendCoordinates(self, lat, lng):
-        self.dataChanged.emit(f"Latitude: {lat}, Longitude: {lng}")  # Emit signal with the coordinates
-
+    def send_gus_coord_htlm(self, lat, lng):
+        self.datatohtml.emit(f"Latitude: {lat}, Longitude: {lng}")  # Emit signal with the coordinates
+    
+    @pyqtSlot(str)
+    def printCoordinates(self, message):
+        print(f"Waypoint coordinates: {message}")
+    
+    @pyqtSlot(str)    
+    def waypoint_Coord(self, message):
+        print(f"Waypoint coordinates: {message}")
+            
 class CustomWebEnginePage(QWebEnginePage):
     '''Used to override JS message method to enable data transfer between frontend and backend'''
     def __init__(self, parent=None):
@@ -39,6 +47,7 @@ class CustomWebEnginePage(QWebEnginePage):
 
     def javaScriptConsoleMessage(self, level, message, lineNumber, sourceId):
         print(f"JS: {message} (line {lineNumber}, {sourceId})")
+
 
 class outerClass: 
     def __init__(self, csv_handler, tab):
@@ -77,6 +86,9 @@ class outerClass:
             self.page.setWebChannel(self.channel)
             push_btn_send.clicked.connect(self.send_waypoints)
 
+            # Connect the signal to the slot
+            self.backend.datafromhtml.connect(self.backend.waypoint_Coord)
+
             # Layout setup
             g_map = QGridLayout()
 
@@ -96,7 +108,7 @@ class outerClass:
         def send_data_to_html(self):
             self.reload_csv_data()
             lat, lon = self.csv_handler.get_lat_lon(self.tab + 1)
-            self.backend.sendCoordinates(lat, lon)
+            self.backend.send_gus_coord_htlm(lat, lon)
 
         def reload_csv_data(self):
             self.csv_handler.load_dataframes()
@@ -104,7 +116,7 @@ class outerClass:
             
         def send_waypoints(self):
             pass
-                
+            
     class _Group2(QGroupBox):
         def __init__(self, csv_handler, tab) -> None:
             super().__init__("Terminal")

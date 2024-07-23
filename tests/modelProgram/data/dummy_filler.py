@@ -14,6 +14,7 @@ NUMBER_OF_CSV_FILES = 6
 class dummyDataCreator:
     """Generates random data for CSV files."""
     def __init__(self):
+
         self.angle = 0 
         
     def create_data(self):
@@ -37,14 +38,27 @@ class dummyDataCreator:
         for i in range(1,NUMBER_OF_CSV_FILES):
             try:
                 filename = os.path.join(BASE_DIR, f'{i}_gus.csv')
-                data_frame = pd.read_csv(filename)
+                df = pd.read_csv(filename)
                 self.angle += math.pi / 30  # Increment angle for next point (adjust for desired resolution)
                 lat_value = 32.70476 + 0.001 * math.cos(self.angle)  
                 lon_value = -117.22940 + 0.001 * math.sin(self.angle)
+
+                for x in HEADERS:
+                    if x == 'lat':
+                        df[x] = lat_value
+                    elif x == 'lon':
+                        df[x] = lon_value
+                    elif x == 'heading':
+                        df[x] = random.uniform(0,360)
+                    elif x == 'battery':
+                        df[x] = random.uniform(0,100)
+                    else:
+                        df[x] = random.uniform(0,100)
+            
                 
                 # BC (17 July 2024): I am using the class name in lieu of self because self refers to an external class instance 
                 #                    originating from the gusSing_ui.outerClass._Group* module
-                data_frame = dummyDataCreator.process_data(data_frame, lat_value, lon_value)
+                data_frame = dummyDataCreator.process_data(df, lat_value, lon_value)
                 data_frame.to_csv(filename, index=False)
             except Exception as e:
                 print(f"Error: {e}")
