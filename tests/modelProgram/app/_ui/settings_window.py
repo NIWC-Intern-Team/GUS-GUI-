@@ -1,6 +1,6 @@
 
 
-import sys
+import sys, subprocess, platform
 import pandas as pd
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QListWidget, QStackedWidget, QWidget,
@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
 class SettingsWindow(QWidget):
     def __init__(self, parent=None):
         super(SettingsWindow, self).__init__(parent)
-        self.file_path = 'app\_ui\ip_address.csv'
+        self.file_path = 'data\ip_address.csv'
         self.ip_addresses, self.sensors = self.load_ip_addresses_and_sensors_from_csv(self.file_path)
         self.initUI()
 
@@ -76,10 +76,6 @@ class SettingsWindow(QWidget):
                 layout.addLayout(sensor_layout)
                 self.line_edits.append((vehicle, sensor, line_edit))
         
-        # Add the Save button
-        save_button = QPushButton("Save")
-        save_button.clicked.connect(self.save_changes)
-        layout.addWidget(save_button)
 
         return panel
 
@@ -93,3 +89,34 @@ class SettingsWindow(QWidget):
         df.to_csv(self.file_path, index=False)
         print(df)
         print("Changes saved to", 'ip_address.csv')
+        
+    def ping(self, host):
+        # Determine the correct option based on the operating system
+        print(f"Detected system: {sys.platform}")
+        if sys.platform == "win32":
+            param = '-n' if platform.system().lower() == 'windows' else '-c'
+
+            try:
+                # Run the ping command
+                result = subprocess.run(['ping', param, '4', host], capture_output=True, text=True, check=True)
+                print(result.stdout)
+                return 0
+            except subprocess.CalledProcessError as e:
+                print(f"Ping failed: {e}")
+                return e.returncode
+            except PermissionError as e:
+                print(f"Access denied. Try running the script with administrative privileges. {e}")
+                return -1
+        elif "linux" in sys.platform:
+            print("Linux ping function not tested yet")
+                    # Run the ping command
+            result = subprocess.run(['ping', '-c', '4', host], capture_output=True, text=True)
+
+            # Print the output of the ping command
+            print(result.stdout)
+
+            # Return the return code (0 means success)
+            return result.returncode
+        else:
+            print("Unknown system.platform: %s  Installation failed, see setup.py." % sys.platform)
+            sys.exit(1)

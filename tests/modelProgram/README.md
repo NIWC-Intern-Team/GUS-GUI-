@@ -45,6 +45,33 @@ If running from containerized environment
 
 
 
+## Tile Maps 
+TLDR 
+- Mobile Atlas Creator 
+- Edit settings.xml for save dir 
+- OpenStreetMap Public Transport, check as many zoom levels as you can 
+- OSMTracker Tile for z/x/y... dir format 
+- Add seelction, save profile, create atlas 
+- drag and drop newly made tiles into tile dir in app/_ui/static/tiles
+
+
+## ZED Camera 
+
+### Setup 
+https://github.com/stereolabs/zed-python-api
+
+in case of 
+    import pyzed.sl as sl
+ImportError: DLL load failed while importing sl: The specified module could not be found.
+
+https://community.stereolabs.com/t/pyzed-sl-importerror-dll-load-failed-the-specified-module-could-not-be-found/234/2
+
+additional tool and references
+https://github.com/lucasg/Dependencies
+
+https://github.com/stereolabs/zed-sdk/tree/master/camera%20streaming
+
+https://github.com/stereolabs/zed-sdk/blob/master/tutorials/tutorial%201%20-%20hello%20ZED/python/hello_zed.py
 
 ## Contacts 
 Route through Tanvir, Hannah, or Brian for contact to the team that started the development for questions 

@@ -23,7 +23,9 @@ from PyQt5.QtWidgets import (
 
 from typing import Any
 from data.dummy_filler import dummyDataCreator
+import time
 class Backend(QObject):
+    
     '''JS access to PyQt backend'''
     datatohtml = pyqtSignal(str)  # Signal to send data to HTML
     datafromhtml = pyqtSignal(str)  # Signal to receive data from HTML
@@ -219,34 +221,48 @@ class outerClass:
             groupA = QGroupBox("Front View")
 
             # Setup widgets
-            url = "http://169.254.127.55"
+            try:
+                self.sensor_ip_dict = csv_handler.load_ip_data(tab+1)
+                iplist = list(self.sensor_ip_dict.keys())
 
+            except Exception as e:
+                print(f"Error: {e}")
+                iplist = ["https://000.000.00.000", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed"]
+            finally: 
+                pass
+            # csv_handler.get_veh_ip_sensor(tab)
+            print(iplist)
+            url = "192.168.54.172:8081/video_feed"
+            
+            # iplist = ["https://000.000.00.000", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed"]
+            modified_ip_list = [f"https://{ip}" for ip in iplist]
+            
             # Layout
             v_layout_line_edit1 = QVBoxLayout()
             self.web_view = QWebEngineView()
             v_layout_line_edit1.addWidget(self.web_view)
             groupL.setLayout(v_layout_line_edit1)
-            self.web_view.setUrl(QUrl(url))
+            self.web_view.setUrl(QUrl(modified_ip_list[0]))
 
             v_layout_line_edit2 = QVBoxLayout()
             self.web_view2 = QWebEngineView()
             v_layout_line_edit2.addWidget(self.web_view2)
             groupR.setLayout(v_layout_line_edit2)
-            self.web_view2.setUrl(QUrl(url))
+            self.web_view2.setUrl(QUrl(modified_ip_list[1]))
 
 
             v_layout_line_edit3 = QVBoxLayout()
             self.web_view3 = QWebEngineView()
             v_layout_line_edit3.addWidget(self.web_view3)
             groupF.setLayout(v_layout_line_edit3)
-            self.web_view3.setUrl(QUrl(url))
+            self.web_view3.setUrl(QUrl(modified_ip_list[2]))
 
             v_layout_line_edit4 = QVBoxLayout()
             self.web_view4 = QWebEngineView()
             v_layout_line_edit4.addWidget(self.web_view4)
 
             groupA.setLayout(v_layout_line_edit4)
-            self.web_view4.setUrl(QUrl(url))
+            self.web_view4.setUrl(QUrl(modified_ip_list[3]))
 
 
             g_layout_main = QGridLayout(self)
