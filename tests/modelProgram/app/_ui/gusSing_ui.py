@@ -168,7 +168,7 @@ class outerClass:
             diagnostics_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             diagnostics_table.setHorizontalHeaderLabels([' '])
             diagnostics_table.setVerticalHeaderLabels([
-                'Name', 'Latitude', 'Longitude', 'Status', 'Mode', 'Battery Voltage'
+                'Name', 'Status', 'Mode', 'Battery Voltage', 'Latitude', 'Longitude'
             ])
             diagnostics_table.setAlternatingRowColors(True)
             diagnostics_table.setMinimumHeight(205)

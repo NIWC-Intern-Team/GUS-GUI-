@@ -1,2 +1,2 @@
-name,lat,lon,status,mode,battery_voltage,ip_address,network_status,temp_sensor_1,temp_sensor_2,temp_sensor_3,volt_5v_line_sensor,volt_killsig_line_sensor,volt_24v_line_sensor,volt_curr_24v_line_sensor,volt_curr_thr_line_sensor,lidar_sensor,video_axis_feed,video_zed_feed,teensy_status,thruster_left_status,thruster_right_status
-Cucumber (GUS-5),32.70476,-117.2284,Remote control,Active,16,10.6.182.5,90,10,43,54,38,Physical e-stop,17,93,85,Online,Online,Online,Online,Running,Running
+name,status,mode,battery_voltage,lat,lon,ip_address,network_status,temp_sensor_1,temp_sensor_2,temp_sensor_3,volt_5v_line_sensor,volt_killsig_line_sensor,volt_24v_line_sensor,volt_curr_24v_line_sensor,volt_curr_thr_line_sensor,lidar_sensor,video_axis_feed,video_zed_feed,teensy_status,thruster_left_status,thruster_right_status
+Avocado (GUS 5),Remote control,Active,9,32.70576,-117.2294,10.6.182.5,69,30,67,79,14,Remote e-stop,26,99,23,Offline,Offline,Online,Online,Running,Running

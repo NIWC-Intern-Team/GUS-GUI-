@@ -190,20 +190,20 @@ class outerClass:
             for i in range(1, self.tab + 1):
                 self.reload_csv_data()
                 
-                self.battery = self.csv_handler.get_battery(i)
-                self.tables[i - 1].setItem(0,0, QTableWidgetItem(f'{self.battery:.3f}%'))
+                self.battery_voltage = self.csv_handler.get_battery_voltage(i)
+                self.tables[i - 1].setItem(0,0, QTableWidgetItem(f'{self.battery_voltage:.3f}%'))
                 
                 self.lat, self.long = self.csv_handler.get_lat_lon(i)
                 self.tables[i - 1].setItem(1,0, QTableWidgetItem(f'{self.lat:.3f}, {self.long:.3f}'))
                     
-                self.speed = self.csv_handler.get_speed(i)
-                self.tables[i - 1].setItem(2, 0, QTableWidgetItem(f'{self.speed:.3f} m/s'))
+                #self.speed = self.csv_handler.get_speed(i)
+                #self.tables[i - 1].setItem(2, 0, QTableWidgetItem(f'{self.speed:.3f} m/s'))
                     
-                self.temperature = self.csv_handler.get_average_temp(i)
-                self.tables[i - 1].setItem(3, 0, QTableWidgetItem(f'{self.temperature:.3f} °C'))
+                #self.temperature = self.csv_handler.get_average_temp(i)
+                #self.tables[i - 1].setItem(3, 0, QTableWidgetItem(f'{self.temperature:.3f} °C'))
                 
-                self.heading = self.csv_handler.get_heading(i)
-                self.tables[i - 1].setItem(4,0, QTableWidgetItem(f'{self.heading:.3f}°'))
+                #self.heading = self.csv_handler.get_heading(i)
+                #self.tables[i - 1].setItem(4,0, QTableWidgetItem(f'{self.heading:.3f}°'))
                 
                 self.tables[i - 1].resizeColumnsToContents()
 

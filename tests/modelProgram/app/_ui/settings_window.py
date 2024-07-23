@@ -1,16 +1,17 @@
-
-
-import sys
+import os
 import pandas as pd
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QListWidget, QStackedWidget, QWidget,
-    QVBoxLayout, QLabel, QHBoxLayout, QSizePolicy, QLineEdit, QPushButton
+    QListWidget, QStackedWidget, QWidget, QVBoxLayout, QLabel, QHBoxLayout, QSizePolicy, QLineEdit, QPushButton
 )
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+IP_ADDRESS_CSV_PATH = os.path.join(BASE_DIR, 'ip_address.csv')
 
 class SettingsWindow(QWidget):
     def __init__(self, parent=None):
         super(SettingsWindow, self).__init__(parent)
-        self.file_path = 'app\_ui\ip_address.csv'
+        self.file_path = IP_ADDRESS_CSV_PATH
+        #self.file_path = 'app\_ui\ip_address.csv'
         self.ip_addresses, self.sensors = self.load_ip_addresses_and_sensors_from_csv(self.file_path)
         self.initUI()
 

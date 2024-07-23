@@ -20,7 +20,7 @@ from data.csv_handler import csvHandler
 class Navigator: 
     """Navigator Setup"""
     def setup_ui(self, main_win: QMainWindow) -> None: 
-        
+
         # Actions     
         try:
             self.actions_page = [
@@ -33,6 +33,7 @@ class Navigator:
             ]
         except Exception as e:
             print(f"Error: {e}")
+
         self.action_open_folder = QAction(QIcon(os.path.join(RESOURCES_DIR,"folder_open_24dp.svg")), "Open folder dialog")
         self.action_open_color_dialog = QAction(QIcon(os.path.join(RESOURCES_DIR,"palette_24dp.svg")), "Open color dialog")
         self.action_open_font_dialog = QAction(
@@ -76,7 +77,7 @@ class Navigator:
         menu_options.addActions(
             (self.action_open_folder, self.action_open_color_dialog, self.action_open_font_dialog, self.action_open_ip_dialog)
         )
-        # To be read from diagnostics sheet
+        # TODO: Read status from diagnostics CSV file
         if (1):
             statusbar.showMessage("Connected") # swap between connected and disconnected
         else:
@@ -113,10 +114,7 @@ class MainWindow(QMainWindow):
     def __init__(self) -> None:
         """Initialization of the MainWindow class."""
         super().__init__()
-        csv_handler = csvHandler()
         self.settings_window = SettingsWindow()
-
-
         self._ui = Navigator()
         self._ui.setup_ui(self)
         self._theme = "dark"
@@ -175,6 +173,7 @@ class MainWindow(QMainWindow):
             index = 5 # All tab 
         print(f"current tab {index}")
         self._ui.stack_widget.setCurrentIndex(index)      
+
     @Slot()
     def _change_theme(self) -> None:
         self._theme = self.sender().text()  # type: ignore

@@ -15,7 +15,6 @@ class csvHandler():
                 df = pd.read_csv(filename)
                 setattr(self, f'df_{i}', df)
                 self.dataframes[f'df_{i}'] = df
-                # print(f"File {filename} loaded successfully")
             except Exception as e:
                 print(f"Error loading {filename}: {e}")
 
@@ -28,38 +27,43 @@ class csvHandler():
         lon = df['lon'].values[0]
         return lat, lon
     
-    def get_speed(self, idx):
-        df = self.dataframes[f'df_{idx}']
-        speed = df['speed'].values[0]
-        return speed
+    # BC (23 July 2024): The engineers requested that the battery voltage displayed on the default screen, but did not request
+    #                    the heading, speed, or average temperature be displayed on either the default or secondary screens,
+    #                    so I changed the get_battery method to get_battery_voltage and commented out the get_speed, get_heading, 
+    #                    and get_average_temp methods.
     
-    def get_average_temp(self, idx):
-        df = self.dataframes[f'df_{idx}']
-        temp = df['average_temp'].values[0]
-        return temp    
+    #def get_speed(self, idx):
+        #df = self.dataframes[f'df_{idx}']
+        #speed = df['speed'].values[0]
+        #return speed
     
-    def get_battery(self, idx):
-        df = self.dataframes[f'df_{idx}']
-        battery = df['battery'].values[0]
-        return battery    
+    #def get_average_temp(self, idx):
+        #df = self.dataframes[f'df_{idx}']
+        #temp = df['average_temp'].values[0]
+        #return temp    
     
-    def get_heading(self, idx):
+    def get_battery_voltage(self, idx):
         df = self.dataframes[f'df_{idx}']
-        heading = df['heading'].values[0]
-        return heading    
+        battery_voltage = df['battery_voltage'].values[0]
+        return battery_voltage    
+    
+    #def get_heading(self, idx):
+        #df = self.dataframes[f'df_{idx}']
+        #heading = df['heading'].values[0]
+        #return heading    
     
     def print_data(self):
         for name, df in self.dataframes.items():
             print(f"DataFrame {name}:")
             print(df)
             print("\n")
+    
     def load_ip_data(self):
         filename = os.path.join(self.base_path, f'ip_address.csv')  # Create an absolute path to the CSV file
         try:
             df = pd.read_csv(filename)
             setattr(self, f'ip_address', df)
             self.dataframes[f'ip_address'] = df
-            # print(f"File {filename} loaded successfully")
         except Exception as e:
             print(f"Error loading {filename}: {e}")
 
