@@ -8,7 +8,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 HEADERS = ['lat','lon','status','mode','name','ip_address','network_status','temp_sensor_1','temp_sensor_2','temp_sensor_3',
            'volt_5v_line_sensor','volt_killsig_line_sensor','volt_24v_line_sensor','volt_curr_24v_line_sensor','volt_curr_thr_line_sensor',
-           'battery_status','lidar_sensor','video_feed','teensy_status','thruster_status']
+           'battery_voltage','lidar_sensor','video_feed','teensy_status','thruster_status']
 NUMBER_OF_CSV_FILES = 6
 
 class dummyDataCreator:
@@ -54,14 +54,16 @@ class dummyDataCreator:
         '''Update numerical fields with random numbers and text fields with a randomly selected value.''' 
         for column_name, column_values in df.items():
             current_value = column_values[0]
+            rounded_number_value = 0
             if (isinstance(current_value, float)):
                 if column_name == 'lat':
                     df[column_name] = lat
                 elif column_name == 'lon':
                     df[column_name] = lon
             elif (isinstance(current_value, (int, long))):
-                rounded_number_value = round(random.uniform(0,100))
-                df[column_name] = rounded_number_value
+                if column_name != 'battery_voltage':
+                    rounded_number_value = round(random.uniform(0,100))
+                    df[column_name] = rounded_number_value
             elif (isinstance(current_value, str)):
                 if ';' in current_value:
                     current_value_list = current_value.split(';')
