@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
 class SettingsWindow(QWidget):
     def __init__(self, parent=None):
         super(SettingsWindow, self).__init__(parent)
-        self.file_path = 'app\_ui\ip_address.csv'
+        self.file_path = 'app/_ui/ip_address.csv' # Fixed backslash to work on my system
         self.ip_addresses, self.sensors = self.load_ip_addresses_and_sensors_from_csv(self.file_path)
         self.initUI()
 
