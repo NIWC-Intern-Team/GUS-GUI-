@@ -8,15 +8,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     software-properties-common \
     build-essential \
-    python3-dev \
-    python3-pip \
-    python3.9 \
-    python3.9-venv \
-    python3.9-dev \
     x11-apps \
     libgl1-mesa-glx \
     libnss3 \
-    libxcomposite1 \ 
+    libxcomposite1 \
     libxdamage1 \
     libx11-dev \
     libxext-dev \
@@ -33,20 +28,34 @@ RUN apt-get update && apt-get install -y \
     libglu1-mesa-dev \
     libglib2.0-0 \
     libxcb-xinerama0 \
-    # python3-pyqt5 \ 
     && rm -rf /var/lib/apt/lists/*
 
+# # Add deadsnakes PPA for Python 3.11
+RUN add-apt-repository ppa:deadsnakes/ppa && apt-get update
+
+# # Install Python 3.11 and pip
+RUN apt-get install -y python3.11 python3.11-venv python3.11-dev \
+    && apt-get install -y python3-pip
+
+# # Set python3.11 as the default python3
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
+    && update-alternatives --set python3 /usr/bin/python3.11
+
+# # Upgrade pip and install setuptools and wheel
+RUN python3.11 -m pip install --upgrade pip setuptools wheel
 
 # Set the working directory in the container
 WORKDIR /src
 
 # Copy the requirements.txt file and install dependencies
 COPY requirements.txt .
-RUN pip3 install --upgrade pip setuptools wheel
-RUN pip3 install -r requirements.txt -i https://pypi.org/simple
+RUN pip3 install -r requirements.txt
 
-# Copy the current directory contents into the container at /app
+# Copy the current directory contents into the container at /src
 COPY . /src
 
 # Command to run your PyQt application
 CMD ["bash"]
+
+
+# ipython, numpy, pandas 
