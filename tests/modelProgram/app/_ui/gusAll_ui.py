@@ -224,6 +224,7 @@ class outerClass:
             self.csv_handler = csv_handler
             self.tab = tab
             self.error_counter = 0
+            self.warning_counter = 0
             # self.view.setMaximumSize(100,100)
             self.tab_widget = QTabWidget()
             tab_errors = QWidget()
@@ -231,7 +232,7 @@ class outerClass:
 
             # Add text areas for errors and warnings
             self.errors_text_edit = QTextEdit()
-            warnings_text_edit = QTextEdit()
+            self.warnings_text_edit = QTextEdit()
 
             # Layouts for tabs
             errors_layout = QVBoxLayout()
@@ -239,7 +240,7 @@ class outerClass:
             tab_errors.setLayout(errors_layout)
 
             warnings_layout = QVBoxLayout()
-            warnings_layout.addWidget(warnings_text_edit)
+            warnings_layout.addWidget(self.warnings_text_edit)
             tab_warnings.setLayout(warnings_layout)
             
             # Add tabs to the tab widget
@@ -253,6 +254,12 @@ class outerClass:
             self.timer = QTimer(self)
             self.timer.timeout.connect(self.thresholds)
             self.timer.start(500)
+            
+            self.flags = [[False, False, False, False], # battery, location, speed, temperature
+                [False, False, False, False], 
+                [False, False, False, False],
+                [False, False, False, False],
+                [False, False, False, False],] 
             
         # Checks for error thresholds
         def thresholds(self):
