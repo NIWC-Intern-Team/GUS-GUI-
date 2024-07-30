@@ -43,6 +43,7 @@ class PingWorker(QRunnable):
 class SettingsWindow(QWidget):
     def __init__(self, parent=None):
         super(SettingsWindow, self).__init__(parent)
+#         self.file_path = 'data/ip_address.csv' # Fixed backslash to work on my system
         
         try:
             # PyInstaller creates a temp folder and stores path in _MEIPASS

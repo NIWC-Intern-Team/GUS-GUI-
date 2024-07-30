@@ -191,7 +191,7 @@ class outerClass:
                 self.reload_csv_data()
                 
                 self.battery = self.csv_handler.get_battery(i)
-                self.tables[i - 1].setItem(0,0, QTableWidgetItem(f'{self.battery:.3f}%'))
+                self.tables[i - 1].setItem(0,0, QTableWidgetItem(f'{self.battery:.3f} V'))
                 
                 self.lat, self.long = self.csv_handler.get_lat_lon(i)
                 self.tables[i - 1].setItem(1,0, QTableWidgetItem(f'{self.lat:.3f}, {self.long:.3f}'))
@@ -245,7 +245,7 @@ class outerClass:
             
             # Add tabs to the tab widget
             self.tab_widget.addTab(tab_errors, f'Errors({self.error_counter})')
-            self.tab_widget.addTab(tab_warnings, "Warnings")
+            self.tab_widget.addTab(tab_warnings, f'Warnings({self.warning_counter})')
 
             g_error_layout = QGridLayout()
             g_error_layout.addWidget(self.tab_widget, 2, 0, 1, 3)  
@@ -255,7 +255,13 @@ class outerClass:
             self.timer.timeout.connect(self.thresholds)
             self.timer.start(500)
             
-            self.flags = [[False, False, False, False], # battery, location, speed, temperature
+            self.warning_flags = [[False, False, False, False], # battery, location, speed, temperature
+                [False, False, False, False], 
+                [False, False, False, False],
+                [False, False, False, False],
+                [False, False, False, False],] 
+            
+            self.error_flags = [[False, False, False, False], # battery, location, speed, temperature
                 [False, False, False, False], 
                 [False, False, False, False],
                 [False, False, False, False],
