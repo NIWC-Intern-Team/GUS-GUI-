@@ -1,6 +1,6 @@
 Vehicle,Sensor,IP Address
-GUS 1,Sensor 1,169.254.127.55
-GUS 1,Sensor 2,192.168.11.222
+GUS 1,Axis Cakera,169.254.127.55
+GUS 1,Tahseen Host Machine,192.168.53.100
 GUS 1,Sensor 3,192.167.11.333
 GUS 1,Sensor 4,192.168.11.444
 GUS 1,Sensor 5,192.168.11.555
