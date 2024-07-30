@@ -20,7 +20,8 @@ joystick_1.init()
 
 
 joysticks = []
-for i in range(ctrl_count):
+for i in range(ctrl_count+1):
+    print(i)
     try:
         joystick = pygame.joystick.Joystick(i)
         joystick.init()
@@ -39,5 +40,3 @@ while True:
             print(f"Joystick {event.instance_id} button {event.button} pressed")
         elif event.type == JOYBUTTONUP:
             print(f"Joystick {event.instance_id} button {event.button} released")
-        # elif event.type in [pygame.JOYAXISMOTION]:
-        #     print(f"Event from joystick: {event.}")

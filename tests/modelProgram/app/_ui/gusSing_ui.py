@@ -226,9 +226,7 @@ class outerClass:
             tab_errors = QWidget()
             tab_warnings = QWidget()
             tab_terminal = Terminal()
-            # tab_contrller = test()
-            tab_controller = gusCtrl(tab)
-            # tab_contrller = JoystickWidget(tab)
+            
             # Add text areas for errors and warnings
             errors_text_edit = QTextEdit()
             warnings_text_edit = QTextEdit()
@@ -244,11 +242,15 @@ class outerClass:
             tab_warnings.setLayout(warnings_layout)
 
             # Add tabs to the tab widget
+
             tab_widget.addTab(tab_errors, "Errors")
             tab_widget.addTab(tab_warnings, "Warnings")
             tab_widget.addTab(tab_terminal, "Terminal")
-            tab_widget.addTab(tab_controller, "Controllers")
 
+            if tab == 0:
+                tab_controller = gusCtrl(0)
+                tab_widget.addTab(tab_controller, "Controllers")
+        
             # Layout setup
             g_map = QGridLayout()
 
