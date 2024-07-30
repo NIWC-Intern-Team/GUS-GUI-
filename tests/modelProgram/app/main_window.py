@@ -20,7 +20,6 @@ from data.csv_handler import csvHandler
 class Navigator: 
     """Navigator Setup"""
     def setup_ui(self, main_win: QMainWindow) -> None: 
-        
         # Actions     
         try:
             self.actions_page = [

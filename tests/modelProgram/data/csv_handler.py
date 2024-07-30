@@ -3,7 +3,7 @@ import pandas as pd
 
 class csvHandler():
     def __init__(self) -> None:
-        print("CSV handler initialized")
+        # print("CSV handler initialized")
         self.diag_dataframes = {}
         self.ip_sensor_df = {}
         self.base_path = os.path.dirname(os.path.abspath(__file__))  # Get the directory where csv_handler.py is located
@@ -63,7 +63,7 @@ class csvHandler():
             df.columns = df.columns.str.strip()  # Remove leading/trailing spaces from column names
             setattr(self, 'ip_address', df)
             self.ip_sensor_df = df
-            print(f"File {filename} loaded successfully")
+            # print(f"File {filename} loaded successfully")
             # print("Columns:", self.ip_sensor_df.columns[0])  
         except Exception as e:
             print(f"Error loading {filename}: {e}")

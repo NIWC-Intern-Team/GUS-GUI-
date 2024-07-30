@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 
 from PyQt5.QtCore import Qt, QUrl, QObject, pyqtSignal, pyqtSlot, QTimer
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineCertificateError
 from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtWidgets import (
     QGridLayout,
@@ -24,6 +24,81 @@ from PyQt5.QtWidgets import (
 from typing import Any
 from data.dummy_filler import dummyDataCreator
 import time
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QLineEdit, QVBoxLayout, QWidget
+from PyQt5.QtCore import QProcess
+from app._ui.scripts.gusdrive import *
+
+import pygame
+from pygame.locals import *
+
+
+class Terminal(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("PyQt Terminal")
+        self.setGeometry(100, 100, 800, 600)
+
+        self.output_area = QTextEdit(self)
+        self.output_area.setReadOnly(True)
+        
+        self.input_area = QLineEdit(self)
+        self.input_area.returnPressed.connect(self.run_command)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.output_area)
+        layout.addWidget(self.input_area)
+
+        container = QWidget()
+        container.setLayout(layout)
+        self.setCentralWidget(container)
+
+        self.process = QProcess(self)
+        self.process.readyReadStandardOutput.connect(self.read_stdout)
+        self.process.readyReadStandardError.connect(self.read_stderr)
+        self.process.finished.connect(self.process_finished)
+
+    def run_command(self):
+        command = self.input_area.text().strip()
+        if command:
+            self.output_area.append(f"$ {command}")
+            if command.startswith("cd "):
+                self.change_directory(command)
+            elif command in ["exit", "exit()"]:
+                if self.process.state() == QProcess.Running:
+                    self.process.kill()
+                    self.output_area.append("Terminating process...\n")
+            elif self.process.state() == QProcess.NotRunning:
+                self.process.start(command)
+                self.input_area.clear()
+            else:
+                self.output_area.append("Error: Process is already running. Please wait for it to finish.")
+
+    def change_directory(self, command):
+        try:
+            # Extract the directory path
+            directory = command[3:].strip()
+            # Change the directory
+            os.chdir(directory)
+            # Update the output area with the new working directory
+            self.output_area.append(f"Changed directory to {os.getcwd()}")
+        except Exception as e:
+            self.output_area.append(f"Error: {str(e)}")
+
+    def read_stdout(self):
+        data = self.process.readAllStandardOutput().data().decode()
+        self.output_area.append(data)
+
+    def read_stderr(self):
+        data = self.process.readAllStandardError().data().decode()
+        self.output_area.append(data)
+
+    def process_finished(self):
+        self.output_area.append("Process finished.\n")
+   
+
+
+
 class Backend(QObject):
     
     '''JS access to PyQt backend'''
@@ -50,7 +125,32 @@ class CustomWebEnginePage(QWebEnginePage):
     def javaScriptConsoleMessage(self, level, message, lineNumber, sourceId):
         print(f"JS: {message} (line {lineNumber}, {sourceId})")
 
+    def certificateError(self, error):
+        # If you want to ignore the certificates of certain pages
+        # then do something like
+        # if error.url() == QUrl("https://www.us.army.mil/"):
+        #     error.ignoreCertificateError()
+        #     return True
+        # return super().certificateError(error)
 
+        error.ignoreCertificateError()
+        return True
+
+class CustomWebEngineView(QWebEngineView, QWebEngineCertificateError):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def certificateError(self, error):
+        # If you want to ignore the certificates of certain pages
+        # then do something like
+        # if error.url() == QUrl("https://www.us.army.mil/"):
+        #     error.ignoreCertificateError()
+        #     return True
+        # return super().certificateError(error)
+
+        error.ignoreCertificateError()
+        return True
+    
 class outerClass: 
     def __init__(self, csv_handler, tab):
         self.tab = tab 
@@ -62,7 +162,6 @@ class outerClass:
     class _Group1(QGroupBox):
         def __init__(self, csv_handler, tab) -> None:
             super().__init__("Map")
-            
             self.tab = tab
             self.csv_handler = csv_handler           
 
@@ -122,16 +221,17 @@ class outerClass:
     class _Group2(QGroupBox):
         def __init__(self, csv_handler, tab) -> None:
             super().__init__("Terminal")
-
             # Create tab widget for errors and warnings directly
             tab_widget = QTabWidget()
             tab_errors = QWidget()
             tab_warnings = QWidget()
-
+            tab_terminal = Terminal()
+            
             # Add text areas for errors and warnings
             errors_text_edit = QTextEdit()
             warnings_text_edit = QTextEdit()
-
+            
+            
             # Layouts for tabs
             errors_layout = QVBoxLayout()
             errors_layout.addWidget(errors_text_edit)
@@ -142,9 +242,15 @@ class outerClass:
             tab_warnings.setLayout(warnings_layout)
 
             # Add tabs to the tab widget
+
             tab_widget.addTab(tab_errors, "Errors")
             tab_widget.addTab(tab_warnings, "Warnings")
-    
+            tab_widget.addTab(tab_terminal, "Terminal")
+
+            if tab == 0:
+                tab_controller = gusCtrl(0)
+                tab_widget.addTab(tab_controller, "Controllers")
+        
             # Layout setup
             g_map = QGridLayout()
 
@@ -235,11 +341,11 @@ class outerClass:
             url = "192.168.54.172:8081/video_feed"
             
             # iplist = ["https://000.000.00.000", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed"]
-            modified_ip_list = [f"https://{ip}" for ip in iplist]
+            modified_ip_list = [f"httpS://{ip}" for ip in iplist]
             
             # Layout
             v_layout_line_edit1 = QVBoxLayout()
-            self.web_view = QWebEngineView()
+            self.web_view = CustomWebEngineView()
             v_layout_line_edit1.addWidget(self.web_view)
             groupL.setLayout(v_layout_line_edit1)
             self.web_view.setUrl(QUrl(modified_ip_list[0]))

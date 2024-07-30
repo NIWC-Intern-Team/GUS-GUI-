@@ -1,16 +1,67 @@
-import sys
+import sys, os
 import subprocess
 import platform
 import pandas as pd
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QLabel, QListWidget, QStackedWidget, QSizePolicy
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QLabel, QListWidget, QStackedWidget, QSizePolicy
+from PyQt5.QtCore import QThreadPool, QRunnable, pyqtSlot, QObject, pyqtSignal
+
+class WorkerSignals(QObject):
+    result = pyqtSignal(int, int, str, int)
+
+
+class PingWorker(QRunnable):
+    def __init__(self, host, table, row, table_id):
+        super().__init__()
+        self.host = host
+        self.table = table
+        self.row = row
+        self.table_id = table_id 
+        self.signals = WorkerSignals()
+        
+
+    @pyqtSlot()
+    def run(self):
+        param = '-n' if platform.system().lower() == 'windows' else '-c'
+        print(f"Pinging info: {param}, {self.host}, {self.table}, {self.row}, table id: {self.table_id}")
+        try:
+            result = subprocess.run(['ping', self.host], capture_output=True, text=True, check=True)
+            if result.returncode == 0  and "Destination host unreachable" not in result.stdout: 
+                print(f"Ping data result: \n-------\n{result}\n-------\n")
+                self.signals.result.emit(self.row, 2, "Pass!", self.table_id)
+            else: 
+                print(f"Ping data result: \n-------\n{result}\n-------\n")
+                self.signals.result.emit(self.row, 2, "Fail!", self.table_id)
+
+        except subprocess.CalledProcessError:
+            self.signals.result.emit(self.row, 2, "Fail!",  self.table_id)
+        except PermissionError as e:
+            self.signals.result.emit(self.row, 2, f"Access Denied: {e}",  self.table_id)
+
+
 
 class SettingsWindow(QWidget):
     def __init__(self, parent=None):
         super(SettingsWindow, self).__init__(parent)
-        self.file_path = 'data/ip_address.csv' # Fixed backslash to work on my system
+#         self.file_path = 'data/ip_address.csv' # Fixed backslash to work on my system
+        
+        try:
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+        except AttributeError:
+            # print("non exec")
+            base_path = os.path.abspath(".")
+        
+        relative_path = os.path.join('data', 'ip_address.csv')
+        # Get the current directory of settings_window.py
+        csv_path = os.path.join(base_path, relative_path)
+        
+   
+        self.file_path = csv_path
+
         self.ip_addresses, self.sensors = self.load_ip_addresses_and_sensors_from_csv(self.file_path)
         self.tables = []
-
+        self.threadpool = QThreadPool()
         self.initUI()
 
     def load_ip_addresses_and_sensors_from_csv(self, file_path):
@@ -49,10 +100,12 @@ class SettingsWindow(QWidget):
 
         # Create and add the settings panels
         self.settings_panels = [self.createSettingsPanel("GUS IP SETTINGS")]
+        table_id = 1
         for vehicle in self.ip_addresses.keys():
             ips = self.ip_addresses[vehicle]
             sensors = self.sensors[vehicle]
-            self.settings_panels.append(self.createSettingsPanel(f"Settings for {vehicle}", vehicle, ips, sensors))
+            self.settings_panels.append(self.createSettingsPanel(f"Settings for {vehicle}", table_id, vehicle, ips, sensors))
+            table_id+=1
         for panel in self.settings_panels:
             self.stacked_widget.addWidget(panel)
 
@@ -63,7 +116,7 @@ class SettingsWindow(QWidget):
         main_layout.addWidget(self.section_list)
         main_layout.addWidget(self.stacked_widget)
 
-    def createSettingsPanel(self, text, vehicle=None, ip_addresses=None, sensors=None):
+    def createSettingsPanel(self, text, table_id=None, vehicle=None, ip_addresses=None, sensors=None):
         numbers_of_rows = len(sensors) if sensors else 6
         table = QTableWidget(numbers_of_rows, 3)  # 6 rows, 2 columns
                 
@@ -78,7 +131,7 @@ class SettingsWindow(QWidget):
             for i in range(numbers_of_rows):
                 table.setItem(i, 0, QTableWidgetItem(f'{ip_addresses[i]}'))
                 push_btn_ping = QPushButton(f"Ping")
-                push_btn_ping.clicked.connect(lambda _, ip=ip_addresses[i], tbl=table, row=i: self.ping(ip, tbl, row))
+                push_btn_ping.clicked.connect(lambda _, ip=ip_addresses[i], tbl=table, row=i: self.start_ping(ip, tbl, row, table_id))
                 table.setCellWidget(i, 1, push_btn_ping)
                 table.setItem(i, 2, QTableWidgetItem("N/A"))
         self.tables.append(table)
@@ -86,40 +139,18 @@ class SettingsWindow(QWidget):
         return table
 
         
-    def ping(self, host, table, row):
-        print(f"Detected system: {sys.platform} - testing {host}")
-        if sys.platform == "win32":
-            param = '-n' if platform.system().lower() == 'windows' else '-c'
+    def start_ping(self, host, table, row, table_id):
+        
+        worker = PingWorker(host, table, row, table_id)
+        worker.signals.result.connect(self.update_result)
+        self.threadpool.start(worker)
 
-            try:
-                # Run the ping command
-                result = subprocess.run(['ping', param, '4', host], capture_output=True, text=True, check=True)
-                print(result.stdout)
-                print("Ping success!")
-                print(row)
-                table.setItem(row, 2, QTableWidgetItem("Pass!"))
-                return 1
-            except subprocess.CalledProcessError as e:
-                table.setItem(row, 2, QTableWidgetItem("Fail!"))
+    def update_result(self, row, column, result, table_id):
+        table = self.tables[table_id]        
+        print(f"Updating table {table} with ID {table_id}")
+        if table.item(row, column):
+            table.setItem(row, column, QTableWidgetItem(result))
 
-                print(f"Ping failed: {e}")
-                return e.returncode
-            except PermissionError as e:
-                print(f"Access denied. Try running the script with administrative privileges. {e}")
-                return -1
-        elif "linux" in sys.platform:
-            print("Linux ping function not tested yet")
-                    # Run the ping command
-            result = subprocess.run(['ping', '-c', '4', host], capture_output=True, text=True)
-
-            # Print the output of the ping command
-            print(result.stdout)
-
-            # Return the return code (0 means success)
-            return result.returncode
-        else:
-            print("Unknown system.platform: %s  Installation failed, see setup.py." % sys.platform)
-            sys.exit(1)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
