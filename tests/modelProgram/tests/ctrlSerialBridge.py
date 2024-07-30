@@ -5,20 +5,7 @@ import time
 import serial.tools.list_ports
 
 
-# Serial setup
-serial_port = 'COM20'  # Update this according to your system (e.g., COM20 on Windows)
-baud_rate = 115200
 
-
-# Initialize serial connection
-try:
-    ser = serial.Serial()
-except serial.SerialException as e:
-    print(f"Could not open serial port {serial_port}: {e}")
-    exit()
-
-ser.port = "COM20"
-ser.baudrate = 115200
 # Initialize Pygame
 pygame.init()
 pygame.joystick.init()

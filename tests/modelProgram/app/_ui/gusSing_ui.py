@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 
 from PyQt5.QtCore import Qt, QUrl, QObject, pyqtSignal, pyqtSlot, QTimer
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineCertificateError
 from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtWidgets import (
     QGridLayout,
@@ -26,6 +26,11 @@ from data.dummy_filler import dummyDataCreator
 import time
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QLineEdit, QVBoxLayout, QWidget
 from PyQt5.QtCore import QProcess
+from app._ui.scripts.gusdrive import *
+
+import pygame
+from pygame.locals import *
+
 
 class Terminal(QMainWindow):
     def __init__(self):
@@ -90,6 +95,10 @@ class Terminal(QMainWindow):
 
     def process_finished(self):
         self.output_area.append("Process finished.\n")
+   
+
+
+
 class Backend(QObject):
     
     '''JS access to PyQt backend'''
@@ -116,7 +125,32 @@ class CustomWebEnginePage(QWebEnginePage):
     def javaScriptConsoleMessage(self, level, message, lineNumber, sourceId):
         print(f"JS: {message} (line {lineNumber}, {sourceId})")
 
+    def certificateError(self, error):
+        # If you want to ignore the certificates of certain pages
+        # then do something like
+        # if error.url() == QUrl("https://www.us.army.mil/"):
+        #     error.ignoreCertificateError()
+        #     return True
+        # return super().certificateError(error)
 
+        error.ignoreCertificateError()
+        return True
+
+class CustomWebEngineView(QWebEngineView, QWebEngineCertificateError):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def certificateError(self, error):
+        # If you want to ignore the certificates of certain pages
+        # then do something like
+        # if error.url() == QUrl("https://www.us.army.mil/"):
+        #     error.ignoreCertificateError()
+        #     return True
+        # return super().certificateError(error)
+
+        error.ignoreCertificateError()
+        return True
+    
 class outerClass: 
     def __init__(self, csv_handler, tab):
         self.tab = tab 
@@ -128,7 +162,6 @@ class outerClass:
     class _Group1(QGroupBox):
         def __init__(self, csv_handler, tab) -> None:
             super().__init__("Map")
-            
             self.tab = tab
             self.csv_handler = csv_handler           
 
@@ -188,14 +221,14 @@ class outerClass:
     class _Group2(QGroupBox):
         def __init__(self, csv_handler, tab) -> None:
             super().__init__("Terminal")
-
             # Create tab widget for errors and warnings directly
             tab_widget = QTabWidget()
             tab_errors = QWidget()
             tab_warnings = QWidget()
             tab_terminal = Terminal()
-            
-            
+            # tab_contrller = test()
+            tab_controller = gusCtrl(tab)
+            # tab_contrller = JoystickWidget(tab)
             # Add text areas for errors and warnings
             errors_text_edit = QTextEdit()
             warnings_text_edit = QTextEdit()
@@ -214,6 +247,8 @@ class outerClass:
             tab_widget.addTab(tab_errors, "Errors")
             tab_widget.addTab(tab_warnings, "Warnings")
             tab_widget.addTab(tab_terminal, "Terminal")
+            tab_widget.addTab(tab_controller, "Controllers")
+
             # Layout setup
             g_map = QGridLayout()
 
@@ -304,11 +339,11 @@ class outerClass:
             url = "192.168.54.172:8081/video_feed"
             
             # iplist = ["https://000.000.00.000", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed"]
-            modified_ip_list = [f"https://{ip}" for ip in iplist]
+            modified_ip_list = [f"httpS://{ip}" for ip in iplist]
             
             # Layout
             v_layout_line_edit1 = QVBoxLayout()
-            self.web_view = QWebEngineView()
+            self.web_view = CustomWebEngineView()
             v_layout_line_edit1.addWidget(self.web_view)
             groupL.setLayout(v_layout_line_edit1)
             self.web_view.setUrl(QUrl(modified_ip_list[0]))

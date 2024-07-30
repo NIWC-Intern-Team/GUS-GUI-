@@ -48,7 +48,7 @@ class SettingsWindow(QWidget):
             # PyInstaller creates a temp folder and stores path in _MEIPASS
             base_path = sys._MEIPASS
         except AttributeError:
-            print("non exec")
+            # print("non exec")
             base_path = os.path.abspath(".")
         
         relative_path = os.path.join('data', 'ip_address.csv')

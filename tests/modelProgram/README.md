@@ -141,4 +141,10 @@ Must install VcXsrv to allow GUI applications on a windows machine that are forw
 connect variable issue, a lot of customization in terms of communication and not using standard packages. html script contains in-line js as well
 
 
+noah update first - all tab errors/warnings and diagnostic data 
 
+offline maps - note of mobile atlas creator, dark/light mode, file dialog, ip pinging, terminal pinging, terminal tools and python, controller data readout, 
+
+note on read from file communication (not the best, ipc -> sockets/pipes are intended )
+
+moved on from containerization, moved on from pyinstaller executable
