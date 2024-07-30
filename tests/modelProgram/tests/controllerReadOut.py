@@ -40,3 +40,6 @@ while True:
             print(f"Joystick {event.instance_id} button {event.button} pressed")
         elif event.type == JOYBUTTONUP:
             print(f"Joystick {event.instance_id} button {event.button} released")
+        elif event.type == pygame.JOYAXISMOTION:
+            axis_value = joystick.get_axis(event.axis)
+            print(f"Joystick {event.instance_id} axis {event.axis} value: {axis_value:.2f}")

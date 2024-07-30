@@ -70,7 +70,7 @@ class TextPrint:
 
 def main():
     # Set the width and height of the screen (width, height), and name the window.
-    screen = pygame.display.set_mode((1000, 1000))
+    screen = pygame.display.set_mode((500, 500))
     pygame.display.set_caption("Drive USV2")
 
     # Used to manage how fast the screen updates.
@@ -84,7 +84,7 @@ def main():
     # at the start of the program.
     joysticks = {}
     
-    gain = 10;
+    gain = 10
     enabled = False
     manual = True
     autonano = False

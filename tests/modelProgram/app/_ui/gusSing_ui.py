@@ -26,7 +26,7 @@ from data.dummy_filler import dummyDataCreator
 import time
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QLineEdit, QVBoxLayout, QWidget
 from PyQt5.QtCore import QProcess
-# from app._ui.scripts.gusdrive import *
+from app._ui.scripts.gusdrive import *
 
 import pygame
 from pygame.locals import *
@@ -152,10 +152,11 @@ class CustomWebEngineView(QWebEngineView, QWebEngineCertificateError):
         return True
     
 class outerClass: 
-    def __init__(self, csv_handler, tab):
+    def __init__(self, csv_handler, tab, joystick_count):
         self.tab = tab 
+        self.joystick_count = joystick_count
         self.group1 = self._Group1(csv_handler, self.tab)
-        self.group2 = self._Group2(csv_handler, self.tab)
+        self.group2 = self._Group2(csv_handler, self.tab, self.joystick_count)
         self.group3 = self._Group3(csv_handler, self.tab)
         self.group4 = self._Group4(csv_handler, self.tab)
 
@@ -219,7 +220,7 @@ class outerClass:
             pass
             
     class _Group2(QGroupBox):
-        def __init__(self, csv_handler, tab) -> None:
+        def __init__(self, csv_handler, tab, joystick_count) -> None:
             super().__init__("Terminal")
             # Create tab widget for errors and warnings directly
             tab_widget = QTabWidget()
@@ -246,11 +247,20 @@ class outerClass:
             tab_widget.addTab(tab_errors, "Errors")
             tab_widget.addTab(tab_warnings, "Warnings")
             tab_widget.addTab(tab_terminal, "Terminal")
+            for i in range(joystick_count):
+                if tab == i:
+                    tab_controller = gusCtrl(i)
+                    print(f"Controller {i} for tab {tab} set")
+                    tab_widget.addTab(tab_controller, f"Controller {i}")
+                    break
+                else:
+                    tab_controller = QTextEdit()
+                    tab_layout = QVBoxLayout()
+                    tab_layout.addWidget(tab_controller)
+                    tab_controller.append("No Assigned controller")
+                    tab_widget.addTab(tab_controller, "No Control")
+                    
 
-            # if tab == 9:
-            #     tab_controller = gusCtrl(0)
-            #     tab_widget.addTab(tab_controller, "Controllers")
-        
             # Layout setup
             g_map = QGridLayout()
 
@@ -383,14 +393,14 @@ class outerClass:
 class singUI:
     """The ui class of widgets window. nice :-D"""
 
-    def setup_ui(self, win: QWidget, csv_handler, tab) -> None:
+    def setup_ui(self, win: QWidget, csv_handler, tab, joystick_count) -> None:
         """Set up ui."""
         
         # Widgets
         h_splitter_1 = QSplitter(Qt.Horizontal, win)
         h_splitter_1.setMinimumWidth(100)  # Ensure splitter has a minimum width
 
-        outer_instance = outerClass(csv_handler, tab)
+        outer_instance = outerClass(csv_handler, tab, joystick_count)
         # Left vertical splitter
         left_splitter = QSplitter(Qt.Vertical)
         left_splitter.addWidget(outer_instance.group1)

@@ -8,29 +8,29 @@ class Error(outerClass._Group3):
     def thresholds(self):
         # Allows for repeating errors if constantly above/below threshold
         def check_errors():
-            for i in range(1, self.tab + 1):
-                if self.flags[i-1][0]:
-                    battery = self.csv_handler.get_battery(i)
-                    self.errors_text_edit.append(f'{self.time} Gus {i}: Repeat Warning - Battery low ({battery:.3f}%)')
+            # for i in range(1, self.tab + 1):
+            #     if self.flags[i-1][0]:
+            #         battery = self.csv_handler.get_battery(i)
+            #         self.errors_text_edit.append(f'{self.time} Gus {i}: Repeat Warning - Battery low ({battery:.3f}%)')
                     
-                # if self.flags[i-1][2]:
-                #     speed = self.csv_handler.get_speed(i)
-                #     self.errors_text_edit.append(f'{self.time} Gus {i}: Repeat Warning - Speed too high ({speed:.3f} m/s)')
+            #     # if self.flags[i-1][2]:
+            #     #     speed = self.csv_handler.get_speed(i)
+            #     #     self.errors_text_edit.append(f'{self.time} Gus {i}: Repeat Warning - Speed too high ({speed:.3f} m/s)')
                     
-                if self.flags[i-1][3]:
-                    temperature = self.csv_handler.get_average_temp(i)
-                    self.errors_text_edit.append(f'{self.time} Gus {i}: Repeat Warning - Temperature too high ({temperature:.3f} °C)')
-                    
+            #     if self.flags[i-1][3]:
+            #         temperature = self.csv_handler.get_average_temp(i)
+            #         self.errors_text_edit.append(f'{self.time} Gus {i}: Repeat Warning - Temperature too high ({temperature:.3f} °C)')
+            pass
         self.time = datetime.now().strftime('%H:%M:%S')
         # Timer for how often repeat errors should be repeated
         t = QTimer(self)
         t.timeout.connect(check_errors)
         # Popup box for Errors
-        error_popup = QMessageBox()
-        error_popup.setWindowTitle("Error")
-        error_popup.setIcon(QMessageBox.Critical)
-        error_popup.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        error_popup.setDefaultButton(QMessageBox.Ok)
+        # error_popup = QMessageBox()
+        # error_popup.setWindowTitle("Error")
+        # error_popup.setIcon(QMessageBox.Critical)
+        # error_popup.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        # error_popup.setDefaultButton(QMessageBox.Ok)
         
         for i in range(1, self.tab + 1):
             self.reload_csv_data()
@@ -52,8 +52,8 @@ class Error(outerClass._Group3):
                 self.error_flags[i-1][0] = True
                 self.error_counter += 1
                 self.errors_text_edit.append(f'{self.time} Gus {i}: Error - Battery low ({self.battery:.3f} V)')
-                error_popup.setText(f'{self.time} Gus {i}: Error - Battery low ({self.battery:.3f} V)')
-                error_popup.exec_()
+                # error_popup.setText(f'{self.time} Gus {i}: Error - Battery low ({self.battery:.3f} V)')
+                # error_popup.exec_()
             if self.battery > 20:
                 self.warning_flags[i-1][0] = False
                 self.error_flags[i-1][0] = False
@@ -83,8 +83,8 @@ class Error(outerClass._Group3):
                 self.error_flags[i-1][3] = True
                 self.error_counter += 1
                 self.errors_text_edit.append(f'{self.time} Gus {i}: Error - Temperature too high ({self.temperature:.3f} °C)')
-                error_popup.setText(f'{self.time} Gus {i}: Error - Temperature too high ({self.temperature:.3f} °C)')
-                error_popup.exec_()
+                # error_popup.setText(f'{self.time} Gus {i}: Error - Temperature too high ({self.temperature:.3f} °C)')
+                # error_popup.exec_()
             if self.temperature <= 40:
                 self.warning_flags[i-1][3] = False
                 self.error_flags[i-1][3] = False

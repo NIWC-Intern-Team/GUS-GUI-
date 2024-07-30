@@ -10,7 +10,7 @@ from PyQt5 import QtGui
 from app._ui.gusSing_ui import singUI
 from app._ui.gusAll_ui import allUI
 from app._ui.settings_window import SettingsWindow
-
+import pygame
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RESOURCES_DIR = os.path.join(BASE_DIR, 'resources') # to be shifted to resources 
 ICON_PATH = os.path.join(RESOURCES_DIR, 'ship.ico')
@@ -93,12 +93,39 @@ class Navigator:
         except Exception as e:
             print(f"Error: {e}")
             
+        # Initialize Pygame
+        pygame.init()
+        pygame.joystick.init()
+
+        # # Check if joystick is connected
+        if pygame.joystick.get_count() > 0:
+            joystick_count = pygame.joystick.get_count()
+        else:
+            joystick_count = 0
+        # Initialize all connected joysticks
+        joysticks = []
+        for i in range(joystick_count):
+            joystick = pygame.joystick.Joystick(i)
+            joystick.init()
+            joysticks.append(joystick)
+        for joystick in joysticks:
+            joystick.quit()
+        # Quit the joystick subsystem
+        pygame.joystick.quit()
+        # Quit Pygame
+        pygame.quit()
+        
+        
         tab_list = [singUI, singUI, singUI, singUI, singUI, allUI]
         
         # Layout 
         for tab, ui in enumerate(tab_list):
             container = QWidget()
-            ui().setup_ui(container, csv_handler, tab)
+            if ui is singUI:
+                ui().setup_ui(container, csv_handler, tab, joystick_count)
+            else:
+                ui().setup_ui(container, csv_handler, tab)
+
             self.stack_widget.addWidget(container)
         
         self.central_window.setCentralWidget(self.stack_widget)

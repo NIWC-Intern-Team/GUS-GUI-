@@ -37,15 +37,6 @@ from PyQt5.QtCore import QProcess
 import pygame
 from pygame.locals import *
 
-USV_IP = "192.168.1.113"
-USV_PORT = 11111
-
-udpOut = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP output
-
-CONTROL_IP = "192.168.1.202"
-CONTROL_PORT = 10101
-udpIn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-udpIn.bind((CONTROL_IP, CONTROL_PORT))  # UDP input
 
 class TextPrint:
     def __init__(self):
@@ -72,6 +63,27 @@ class TextPrint:
 class gusCtrl(QWidget):
     def __init__(self, tab):
         super().__init__()
+        if tab == 0:
+            self.USV_IP = "192.168.1.113"
+            self.USV_PORT = 11111
+
+
+            CONTROL_IP = "192.168.1.202"
+            CONTROL_PORT = 10101
+        elif tab == 1:
+            self.USV_IP = "127.0.0.1"  # Loopback IP address for testing
+            self.USV_PORT = 11111  # Dummy port number
+
+            CONTROL_IP = "127.0.0.1"  # Loopback IP address for testing
+            CONTROL_PORT = 10101  # Dummy port number
+            
+            
+        self.udpOut = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  
+        self.udpIn = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        
+        
+        self.udpIn.bind((CONTROL_IP, CONTROL_PORT))  # UDP input
+
         self.tab = tab 
         self.initUI()
         self.gain = 10
@@ -80,11 +92,10 @@ class gusCtrl(QWidget):
         self.autonano = False
         self.autopix = False
         self.done = False
-        print(f"Tab: {self.tab}")
         
     def initUI(self):
         self.main_layout = QHBoxLayout(self)
-        self.table = QTableWidget(1, 5)  # Add the number of rows and columns
+        self.table = QTableWidget(1, 5) 
         self.table.setHorizontalHeaderLabels(['Joystick', "Status", "Port", "Stb", "Gain"])
         self.table.setAlternatingRowColors(True)
         self.table.setMinimumHeight(205)
@@ -99,7 +110,7 @@ class gusCtrl(QWidget):
         # # Check if joystick is connected
         self.joystick = None
         if pygame.joystick.get_count() > 0:
-            self.joystick = pygame.joystick.Joystick(0)
+            self.joystick = pygame.joystick.Joystick(self.tab)
             # self.joystick.init()
 
         # # self.screen = pygame.Surface((600, 100))
@@ -112,29 +123,39 @@ class gusCtrl(QWidget):
 
     def disableUSV(self):
         print("Sending DISABLE message")
-        udpOut.sendto(b"DISABLE\n", (USV_IP, USV_PORT))
-        udpOut.sendto(b"DISABLE\n", (USV_IP, USV_PORT))
-        udpOut.sendto(b"DISABLE\n", (USV_IP, USV_PORT))
+        self.udpOut.sendto(b"DISABLE\n", (self.USV_IP, self.USV_PORT))
+        self.udpOut.sendto(b"DISABLE\n", (self.USV_IP, self.USV_PORT))
+        self.udpOut.sendto(b"DISABLE\n", (self.USV_IP, self.USV_PORT))
 
     def killUSV(self):
         print("Sending KILL message")
-        udpOut.sendto(b"KILL\n", (USV_IP, USV_PORT))
-        udpOut.sendto(b"KILL\n", (USV_IP, USV_PORT))
-        udpOut.sendto(b"KILL\n", (USV_IP, USV_PORT))
+        self.udpOut.sendto(b"KILL\n", (self.USV_IP, self.USV_PORT))
+        self.udpOut.sendto(b"KILL\n", (self.USV_IP, self.USV_PORT))
+        self.udpOut.sendto(b"KILL\n", (self.USV_IP, self.USV_PORT))
 
     def update_pygame(self):
         if self.enabled:
-            udpOut.sendto(b"ENABLE\n", (USV_IP, USV_PORT))
+            self.udpOut.sendto(b"ENABLE\n", (self.USV_IP, self.USV_PORT))
         if self.autonano:
-            udpOut.sendto(b"AUTONANO\n", (USV_IP, USV_PORT))
+            self.udpOut.sendto(b"AUTONANO\n", (self.USV_IP, self.USV_PORT))
         if self.autopix:
-            udpOut.sendto(b"AUTOPIX\n", (USV_IP, USV_PORT))
+           self.udpOut.sendto(b"AUTOPIX\n", (self.USV_IP, self.USV_PORT))
 
         # Event processing step.
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.done = True  # Flag that we are done so we exit this loop.
-
+            '''
+            on dev machine key map 
+            square: 2
+            circle: 1 
+            x: 0
+            tri: 3
+            r1: 10
+            when on base station keys need to be remappped 
+            
+            
+            '''
             if event.type == pygame.JOYBUTTONDOWN:
                 if event.button == 0:
                     self.enabled = False
@@ -177,14 +198,17 @@ class gusCtrl(QWidget):
                     # joystick = self.joysticks[0]
                     print("button5")
                     self.joystick.rumble(0, 0.7, 500)
-                if event.button == 10:
-                    self.enabled = False
-                    self.autonano = False
-                    self.autopix = False
-                    self.killUSV()
-                    # joystick = self.joysticks[0]
-                    self.joystick.rumble(10, 0.7, 500)
-
+                # if event.button == 10:
+                #     self.enabled = False
+                #     self.autonano = False
+                #     self.autopix = False
+                #     self.killUSV()
+                #     # joystick = self.joysticks[0]
+                #     self.joystick.rumble(10, 0.7, 500)
+                if event.button == 10: # R1
+                    self.gain = self.gain + 1 
+                elif event.button == 9: # L1
+                    self.gain = self.gain -1 
             if event.type == pygame.JOYDEVICEADDED:
                 joy = pygame.joystick.Joystick(event.device_index)
                 self.joysticks[joy.get_instance_id()] = joy
@@ -215,23 +239,18 @@ class gusCtrl(QWidget):
                 # self.text_print.tprint(self.screen, f"Port Thrust: {portaxis}")
                 self.table.setItem(0,2,QTableWidgetItem(f"{portaxis}"))
 
-                stbdaxis = joystick.get_axis(4)
+                stbdaxis = joystick.get_axis(3)
                 if abs(stbdaxis) < 0.1:
                     stbdaxis = 0
                 stbdaxis = round(stbdaxis * (-self.gain))
                 # self.text_print.tprint(self.screen, f"Stbt Thrust: {stbdaxis}")
                 self.table.setItem(0,3,QTableWidgetItem(f"{stbdaxis}"))
 
-                drivecmd = f"DRIVE,{portaxis},{stbdaxis}\n"
-                udpOut.sendto(bytes(drivecmd, 'ascii'), (USV_IP, USV_PORT))
+                drivecmd = "DRIVE," + str(portaxis) + "," + str(stbdaxis) + "\n"
+                self.udpOut.sendto(bytes(drivecmd, 'ascii'), (self.USV_IP, self.USV_PORT))
+                
 
-                gaindownbutton = joystick.get_button(4)
-                # self.text_print.tprint(self.screen, f"Gain Down: {gaindownbutton}")
-                self.table.setItem(0,4,QTableWidgetItem(f"{gaindownbutton}"))
-
-                gainupbutton = joystick.get_button(5)
-                # self.text_print.tprint(self.screen, f"Gain Up: {gainupbutton}")
-                self.table.setItem(0,4,QTableWidgetItem(f"{gainupbutton}"))
+                self.table.setItem(0,4,QTableWidgetItem(f"{self.gain}"))
 
             elif self.enabled and self.autonano:
                 # self.text_print.tprint(self.screen, f"Autonano Enabled!")
