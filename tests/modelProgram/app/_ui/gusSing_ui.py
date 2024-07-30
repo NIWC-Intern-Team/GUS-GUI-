@@ -190,7 +190,7 @@ class outerClass:
             self.update_values(csv_handler, tab + 1)
             self.timer = QTimer(self)
             self.timer.timeout.connect(lambda: self.update_values(csv_handler, tab + 1))
-            self.timer.start(5000)
+            self.timer.start(10000)
 
         def update_values(self, csv_handler, gus_number):
             # BC (10 July 2024): Use the CSV handler component to read from CSV files and populate the diagnostic table, 
