@@ -26,7 +26,7 @@ from data.dummy_filler import dummyDataCreator
 import time
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTextEdit, QLineEdit, QVBoxLayout, QWidget
 from PyQt5.QtCore import QProcess
-from app._ui.scripts.gusdrive import *
+# from app._ui.scripts.gusdrive import *
 
 import pygame
 from pygame.locals import *
@@ -247,9 +247,9 @@ class outerClass:
             tab_widget.addTab(tab_warnings, "Warnings")
             tab_widget.addTab(tab_terminal, "Terminal")
 
-            if tab == 0:
-                tab_controller = gusCtrl(0)
-                tab_widget.addTab(tab_controller, "Controllers")
+            # if tab == 9:
+            #     tab_controller = gusCtrl(0)
+            #     tab_widget.addTab(tab_controller, "Controllers")
         
             # Layout setup
             g_map = QGridLayout()
