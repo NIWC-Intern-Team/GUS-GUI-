@@ -110,10 +110,12 @@
                 iconAnchor: [12, 25], 
                 popupAnchor: [-3, -76] 
             });
-    
+            if (gusMarker) {
+                map.removeLayer(gusMarker);
+
+            }
             gusMarker = L.marker([lat, lon], { icon: customIcon }).addTo(map);
             gusMarker.bindTooltip("Latitude: " + lat.toFixed(2) + ", Longitude: " + lon.toFixed(2));
-            gusMarkerArr.push(gusMarker);
             gusMarker.on('click', function() {
                 map.removeLayer(gusMarker);
             });
