@@ -28,12 +28,16 @@
         var gusMarker;
         var gusLat;
         var gusLng;
+        var waypointCoords = [];
+        var waypointPolyline = null;
+        var gusMarkerArr = [];
         var custom_waypoint = L.icon({
             iconUrl: 'waypoint.png', 
-            iconSize: [25, 25], // Adjust size as needed
-            iconAnchor: [19, 19], // Point of the icon which will correspond to marker's location
-            popupAnchor: [-3, -76] // Point from which the popup should open relative to the iconAnchor
+            iconSize: [25, 25],
+            iconAnchor: [12, 25], 
+            popupAnchor: [-3, -76]
         });
+
         // Initialize the map
         function initMap() {
             map = L.map('map').setView([32.694, -117.238], 13);
@@ -43,7 +47,6 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            // Function to handle click events
             function onMapClick(e) {
                 var lat = e.latlng.lat;
                 var lng = e.latlng.lng;
@@ -55,9 +58,19 @@
             
                 // Event listener for removing the marker on click
                 marker.on('click', function() {
+                    // Remove the marker from the map
                     map.removeLayer(marker);
+
+                    // Remove the coordinates from the waypointCoords array
+                    waypointCoords = waypointCoords.filter(coord => coord[0] !== lat || coord[1] !== lng);
+                    updatePolyline();
                 });
             
+                // Add coordinates to the waypoint array
+                waypointCoords.push([lat, lng]);
+                gusMarkerArr.push(marker);
+                updatePolyline();
+
                 // Send lat, lng to the backend
                 if (backend) {
                     backend.waypoint_Coord("Latitude: " + lat.toFixed(5) + ", Longitude: " + lng.toFixed(5));
@@ -66,6 +79,17 @@
 
             // Add click event listener to the map
             map.on('click', onMapClick);
+        }
+
+        // Function to update the polyline connecting waypoints
+        function updatePolyline() {
+            if (waypointPolyline) {
+                map.removeLayer(waypointPolyline);
+            }
+            waypointPolyline = L.polyline(waypointCoords, { 
+                color: 'black',
+                dashArray: '5, 10' 
+            }).addTo(map);
         }
 
         // Function to parse message and extract coordinates
@@ -82,18 +106,14 @@
         function placeMarker(lat, lon) {
             var customIcon = L.icon({
                 iconUrl: 'gus_map.ico', 
-                iconSize: [25, 25], // Adjust size as needed
-                iconAnchor: [19, 19], // Point of the icon which will correspond to marker's location
-                popupAnchor: [-3, -76] // Point from which the popup should open relative to the iconAnchor
+                iconSize: [25, 25], 
+                iconAnchor: [12, 25], 
+                popupAnchor: [-3, -76] 
             });
     
-            if (gusMarker) {
-                map.removeLayer(gusMarker);
-            }
-
             gusMarker = L.marker([lat, lon], { icon: customIcon }).addTo(map);
             gusMarker.bindTooltip("Latitude: " + lat.toFixed(2) + ", Longitude: " + lon.toFixed(2));
-
+            gusMarkerArr.push(gusMarker);
             gusMarker.on('click', function() {
                 map.removeLayer(gusMarker);
             });
@@ -109,10 +129,26 @@
                 backend.datatohtml.connect(function(message) {
                     var coords = parseCoordinates(message);
                     placeMarker(coords.lat, coords.lon);
-                    // alert("Latitude: " + coords.lat + ", Longitude: " + coords.lon); // Display the parsed coordinates
-                    // You can now use coords.lat and coords.lon as needed within the script
+                });
+
+                // Handle clear waypoints signal
+                backend.clear_waypoints.connect(function() {
+                    clearWaypoints();
                 });
             });
+        }
+
+        // Function to clear all waypoints
+        function clearWaypoints() {
+            for (var i = 0; i < gusMarkerArr.length; i++) {
+                map.removeLayer(gusMarkerArr[i]);
+            }
+            gusMarkerArr = [];
+            waypointCoords = [];
+            if (waypointPolyline) {
+                map.removeLayer(waypointPolyline);
+            }
+            updatePolyline();
         }
 
         // Initialize QWebChannel when the page loads

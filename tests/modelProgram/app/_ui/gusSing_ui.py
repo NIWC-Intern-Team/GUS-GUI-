@@ -97,26 +97,6 @@ class Terminal(QMainWindow):
         self.output_area.append("Process finished.\n")
    
 
-
-
-class Backend(QObject):
-    
-    '''JS access to PyQt backend'''
-    datatohtml = pyqtSignal(str)  # Signal to send data to HTML
-    datafromhtml = pyqtSignal(str)  # Signal to receive data from HTML
-
-    @pyqtSlot(float, float)
-    def send_gus_coord_htlm(self, lat, lng):
-        self.datatohtml.emit(f"Latitude: {lat}, Longitude: {lng}")  # Emit signal with the coordinates
-    
-    @pyqtSlot(str)
-    def printCoordinates(self, message):
-        print(f"Waypoint coordinates: {message}")
-    
-    @pyqtSlot(str)    
-    def waypoint_Coord(self, message):
-        print(f"Waypoint coordinates: {message}")
-            
 class CustomWebEnginePage(QWebEnginePage):
     '''Used to override JS message method to enable data transfer between frontend and backend'''
     def __init__(self, parent=None):
@@ -150,7 +130,34 @@ class CustomWebEngineView(QWebEngineView, QWebEngineCertificateError):
 
         error.ignoreCertificateError()
         return True
-    
+class Backend(QObject):
+    '''JS access to PyQt backend'''
+    datatohtml = pyqtSignal(str)  # Signal to send data to HTML
+    datafromhtml = pyqtSignal(str)  # Signal to receive data from HTML
+    clear_waypoints = pyqtSignal()  # Signal to clear waypoints in HTML
+
+    def __init__(self, parent=None):
+        super().__init__()
+        self.latlon_arr = []
+
+    @pyqtSlot(float, float)
+    def send_gus_coord_htlm(self, lat, lng):
+        self.datatohtml.emit(f"Latitude: {lat}, Longitude: {lng}")  # Emit signal with the coordinates
+
+    @pyqtSlot(str)
+    def waypoint_Coord(self, message):
+        print(f"Waypoint coordinates: {message}")
+        self.latlon_arr.append(message)
+        print(self.latlon_arr)
+
+    def send_latlon_arr(self):
+        return self.latlon_arr
+
+    @pyqtSlot()
+    def clear_waypoints_slot(self):
+        self.latlon_arr = []
+        self.clear_waypoints.emit()  # Emit signal to clear waypoints in HTML
+
 class outerClass: 
     def __init__(self, csv_handler, tab, joystick_count):
         self.tab = tab 
@@ -187,6 +194,7 @@ class outerClass:
             self.channel.registerObject('backend', self.backend)
             self.page.setWebChannel(self.channel)
             push_btn_send.clicked.connect(self.send_waypoints)
+            push_btn_delete.clicked.connect(self.delete_waypoints)
 
             # Connect the signal to the slot
             self.backend.datafromhtml.connect(self.backend.waypoint_Coord)
@@ -217,7 +225,13 @@ class outerClass:
             # print("CSV data reloaded")
             
         def send_waypoints(self):
+            latlon_arr = self.backend.send_latlon_arr()
+            print(f"-------------- Sent Data --------------\n{latlon_arr}")
             pass
+
+        def delete_waypoints(self):
+            print(f"-------------- Deleting array data --------------")
+            self.backend.clear_waypoints_slot()  # Call the slot to clear waypoints
             
     class _Group2(QGroupBox):
         def __init__(self, csv_handler, tab, joystick_count) -> None:
