@@ -1,7 +1,7 @@
 import random
 import time
 import math
-from numpy import long
+import numpy
 import pandas as pd
 import os
 
@@ -73,7 +73,7 @@ class dummyDataCreator:
                     df[column_name] = lat
                 elif column_name == 'lon':
                     df[column_name] = lon
-            elif (isinstance(current_value, (int, long))):
+            elif (isinstance(current_value, (int))):
                 rounded_number_value = round(random.uniform(0,100))
                 df[column_name] = rounded_number_value
             elif (isinstance(current_value, str)):
