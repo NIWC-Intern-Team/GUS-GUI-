@@ -360,19 +360,23 @@ class outerClass:
                 iplist = ["https://000.000.00.000", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed"]
             finally: 
                 pass
+            
+            
             # csv_handler.get_veh_ip_sensor(tab)
             # print(iplist)
-            url = "192.168.54.172:8081/video_feed"
+            url = "http://169.254.127.55"
             
             # iplist = ["https://000.000.00.000", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed"]
-            modified_ip_list = [f"httpS://{ip}" for ip in iplist]
+            modified_ip_list = [f"http://{ip}" for ip in iplist]
             
             # Layout
             v_layout_line_edit1 = QVBoxLayout()
             self.web_view = CustomWebEngineView()
             v_layout_line_edit1.addWidget(self.web_view)
             groupL.setLayout(v_layout_line_edit1)
-            self.web_view.setUrl(QUrl(modified_ip_list[0]))
+            
+            # manually set the url, error with dynamically loading from file 
+            self.web_view.setUrl(QUrl(url))
 
             v_layout_line_edit2 = QVBoxLayout()
             self.web_view2 = QWebEngineView()
