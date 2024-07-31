@@ -40,7 +40,8 @@
 
             // Add OpenStreetMap tiles
             L.tileLayer('tiles/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                className: 'map-tiles'
             }).addTo(map);
 
             // Function to handle click events
@@ -79,6 +80,23 @@
             };
         }
 
+        function changeMapUIMode(uiMode) {
+            // BC (25 July 2024): Map dark mode solution reference: https://dev.to/deepakdevanand/leaflet-map-dark-theme-5ej0
+            localStyleSheet = document.styleSheets.item(0);
+            if (uiMode == "dark") {
+                localStyleSheet.insertRule(`
+                    .leaflet-layer,
+                    .leaflet-control-zoom-in,
+                    .leaflet-control-zoom-out,
+                    .leaflet-control-attribution {
+                        filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+                    }
+                `, 0);
+            } else if (uiMode == "light") {
+                localStyleSheet.removeRule(0);
+            }
+        }
+
         function placeMarker(lat, lon) {
             var customIcon = L.icon({
                 iconUrl: 'gus_map.ico', 
@@ -107,10 +125,13 @@
 
                 // Handle data from Python
                 backend.datatohtml.connect(function(message) {
-                    var coords = parseCoordinates(message);
-                    placeMarker(coords.lat, coords.lon);
-                    // alert("Latitude: " + coords.lat + ", Longitude: " + coords.lon); // Display the parsed coordinates
-                    // You can now use coords.lat and coords.lon as needed within the script
+                    if (message.indexOf("Latitude") > -1) {
+                        var coords = parseCoordinates(message);
+                        placeMarker(coords.lat, coords.lon);
+                     } 
+                    else if (message.indexOf("dark") > -1 || message.indexOf("light") > -1) {
+                        changeMapUIMode(message);
+                    }
                 });
             });
         }

@@ -21,7 +21,6 @@ from PyQt5.QtWidgets import (
     QGroupBox
 )
 
-from typing import Any
 from data.dummy_filler import dummyDataCreator
 class Backend(QObject):
     '''JS access to PyQt backend'''
@@ -29,7 +28,7 @@ class Backend(QObject):
     datafromhtml = pyqtSignal(str)  # Signal to receive data from HTML
 
     @pyqtSlot(float, float)
-    def send_gus_coord_htlm(self, lat, lng):
+    def send_gus_coord_html(self, lat, lng):
         self.datatohtml.emit(f"Latitude: {lat}, Longitude: {lng}")  # Emit signal with the coordinates
     
     @pyqtSlot(str)
@@ -62,11 +61,12 @@ class outerClass:
             super().__init__("Map")
             
             self.tab = tab
-            self.csv_handler = csv_handler           
+            self.csv_handler = csv_handler
+            self._corner_shape = "rounded"           
 
             # Widgets        
             push_btn_send, push_btn_delete = QPushButton("Send waypoints"), QPushButton("Delete all waypoints")
-                
+
             # Create the QWebEngineView widget
             self.view = QWebEngineView()
             self.page = CustomWebEnginePage(self)
@@ -93,26 +93,25 @@ class outerClass:
             g_map = QGridLayout()
 
             # Add the view to take up most of the space
-            g_map.addWidget(self.view, 1, 0, 1, 3)  
-
+            g_map.addWidget(self.view, 1, 0, 1, 2)  
+            
             # Add buttons at the top
-            g_map.addWidget(push_btn_send, 0, 0)  # First row, second column
-            g_map.addWidget(push_btn_delete, 0, 1)  # First row, third column
+            g_map.addWidget(push_btn_send, 0, 0)  # First row, first column
+            g_map.addWidget(push_btn_delete, 0, 1)  # First row, second column
 
             self.setLayout(g_map)
             # Timer to call send_data_to_html every 3 seconds
             self.timer = QTimer(self)
             self.timer.timeout.connect(self.send_data_to_html)
-            self.timer.start(500) 
+            self.timer.start(500)
             
         def send_data_to_html(self):
             self.reload_csv_data()
             lat, lon = self.csv_handler.get_lat_lon(self.tab + 1)
-            self.backend.send_gus_coord_htlm(lat, lon)
+            self.backend.send_gus_coord_html(lat, lon)
 
         def reload_csv_data(self):
             self.csv_handler.load_dataframes()
-            # print("CSV data reloaded")
             
         def send_waypoints(self):
             pass
@@ -168,7 +167,7 @@ class outerClass:
             diagnostics_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
             diagnostics_table.setHorizontalHeaderLabels([' '])
             diagnostics_table.setVerticalHeaderLabels([
-                'Name', 'Status', 'Mode', 'Battery Voltage', 'Latitude', 'Longitude'
+                'Name', 'IP Address', 'Network', 'Voltage', 'Temperature', 'Teensy'
             ])
             diagnostics_table.setAlternatingRowColors(True)
             diagnostics_table.setMinimumHeight(205)
@@ -271,6 +270,7 @@ class singUI:
         outer_instance = outerClass(csv_handler, tab)
         # Left vertical splitter
         left_splitter = QSplitter(Qt.Vertical)
+        #left_splitter.addWidget(outer_instance.group1.accessibility_features_parent)
         left_splitter.addWidget(outer_instance.group1)
         left_splitter.addWidget(outer_instance.group2)
         left_splitter.setMinimumHeight(75)
