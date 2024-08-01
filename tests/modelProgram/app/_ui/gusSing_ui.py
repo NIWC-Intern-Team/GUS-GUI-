@@ -30,7 +30,7 @@ from app._ui.scripts.gusdrive import *
 
 import pygame
 from pygame.locals import *
-from ros_network.gus1_csv_filler import * 
+# from ros_network.gus1_csv_filler import * 
 
 
 class Terminal(QMainWindow):
@@ -318,8 +318,8 @@ class outerClass:
             #                    i.e., tab index + 1 = GUS-V number, else this function call will throw an error.
             #                    Example: Tab index 2 = GUS-V 3
             # BC (15 July 2024): The system is reading from a CSV file that will be randomly updated every five seconds to simulate live data
-            gusData = sub_to_csv()
-            gusData.main()
+            # gusData = sub_to_csv()
+            # gusData.main()
             
 
         def update_values(self, csv_handler, gus_number):
@@ -364,7 +364,7 @@ class outerClass:
             
             # csv_handler.get_veh_ip_sensor(tab)
             # print(iplist)
-            url = "http://169.254.127.55"
+            url = "http://192.168.1.115/#view"
             
             # iplist = ["https://000.000.00.000", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed", "https://000.000.00.000:8081/video_feed"]
             modified_ip_list = [f"http://{ip}" for ip in iplist]
