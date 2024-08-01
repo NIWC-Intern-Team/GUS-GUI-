@@ -30,6 +30,7 @@ from app._ui.scripts.gusdrive import *
 
 import pygame
 from pygame.locals import *
+from ros_network.gus1_csv_filler import * 
 
 
 class Terminal(QMainWindow):
@@ -317,10 +318,9 @@ class outerClass:
             #                    i.e., tab index + 1 = GUS-V number, else this function call will throw an error.
             #                    Example: Tab index 2 = GUS-V 3
             # BC (15 July 2024): The system is reading from a CSV file that will be randomly updated every five seconds to simulate live data
-            self.update_values(csv_handler, tab + 1)
-            self.timer = QTimer(self)
-            self.timer.timeout.connect(lambda: self.update_values(csv_handler, tab + 1))
-            self.timer.start(10000)
+            gusData = sub_to_csv()
+            gusData.main()
+            
 
         def update_values(self, csv_handler, gus_number):
             # BC (10 July 2024): Use the CSV handler component to read from CSV files and populate the diagnostic table, 
