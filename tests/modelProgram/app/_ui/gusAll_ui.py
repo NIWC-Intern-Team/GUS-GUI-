@@ -158,7 +158,7 @@ class outerClass:
             for i in range(1,6):
                 label = QLabel(f'Gus {i}')
                 table = QTableWidget(5,1)
-                table.setVerticalHeaderLabels(['Battery Percentage', 'Location', 'Speed', 'Temperature', 'Heading']) # add header and battery percent
+                table.setVerticalHeaderLabels(['Battery Voltage', 'Location', 'Speed', 'Temperature', 'Heading']) # add header and battery percent
                 table.setHorizontalHeaderLabels(['Values'])
                 
                 self.labels.append(label)
@@ -206,6 +206,7 @@ class outerClass:
                 self.tables[i - 1].setItem(4,0, QTableWidgetItem(f'{self.heading:.3f}°'))
                 
                 self.tables[i - 1].resizeColumnsToContents()
+                self.tables[i - 1].resizeRowsToContents()
 
                 
                 #self.backend.sendTemperature(temperature)
@@ -251,20 +252,26 @@ class outerClass:
             g_error_layout.addWidget(self.tab_widget, 2, 0, 1, 3)  
             self.setLayout(g_error_layout)
             
-            self.timer = QTimer(self)
-            self.timer.timeout.connect(self.thresholds)
-            self.timer.start(500)
-            
-            self.warning_flags = [[False, False, False, False], # battery, location, speed, temperature
+            timer = QTimer(self)
+            timer.timeout.connect(self.thresholds)
+            timer.start(500)
+            # Warning and Error flags to stop the spam of messages to each respective tab
+            # Each row contains a Gus so row 0 is Gus 1 and row 1 is Gus 2 and so on
+            # Each Column represents the data
+            # Gus 1 : [Battery Flag, Location Flag, Speed Flag, Temperature Flag]
+            # Gus 2 : [Battery Flag, Location Flag, Speed Flag, Temperature Flag]
+            self.warning_flags = [
                 [False, False, False, False], 
-                [False, False, False, False],
-                [False, False, False, False],
-                [False, False, False, False],] 
-            
-            self.error_flags = [[False, False, False, False], # battery, location, speed, temperature
                 [False, False, False, False], 
-                [False, False, False, False],
-                [False, False, False, False],
+                [False, False, False, False], 
+                [False, False, False, False], 
+                [False, False, False, False],]  
+            
+            self.error_flags = [
+                [False, False, False, False], 
+                [False, False, False, False], 
+                [False, False, False, False], 
+                [False, False, False, False], 
                 [False, False, False, False],] 
             
         # Checks for error thresholds
