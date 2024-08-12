@@ -1,2 +1,2 @@
 name,ip_address,network_status,battery_voltage,temp_sensor_1,teensy_status,status,mode,lat,lon,temp_sensor_2,temp_sensor_3,volt_5v_line_sensor,volt_killsig_line_sensor,volt_24v_line_sensor,volt_curr_24v_line_sensor,volt_curr_thr_line_sensor,lidar_sensor,video_axis_feed,video_zed_feed,thruster_left_status,thruster_right_status
-Kiwi (GUS 2),192.168.1.20,71,12.63,32,Online,Autonomous control,Station keep,32.70506901699437,-117.2284489434837,77,80,87,Physical e-stop,25,53,3,Online,Offline,Offline,Stopped,Stopped
+Kiwi (GUS 2),192.168.1.20,47,12.63,25,Online,Autonomous control,Station keep,32.705069016994464,-117.22844894348373,70,6,81,Physical e-stop,41,74,44,Online,Offline,Offline,Stopped,Stopped
